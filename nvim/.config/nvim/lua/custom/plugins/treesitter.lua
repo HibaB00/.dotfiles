@@ -1,7 +1,11 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	run = ":TSUpdate",
-	config = function()
+     event = { "BufReadPre", "BufNewFile" },
+     build = ":TSUpdate",
+     dependencies = {
+        "windwp/nvim-ts-autotag",
+     }, 
+		config = function()
 		---@diagnostic disable-next-line: missing-fields
 		require("nvim-treesitter.configs").setup({
 			-- A list of parser names, or "all" (the five listed parsers should always be installed)
