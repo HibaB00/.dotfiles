@@ -1,6 +1,6 @@
 return {
 	"supermaven-inc/supermaven-nvim",
-	event = { "VeryLazy", "BufRead", "BufNewFile" },
+	event = { "VimEnter" },
 	config = function()
 		require("supermaven-nvim").setup({
 			keymaps = {
