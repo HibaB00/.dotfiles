@@ -123,6 +123,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH=$PATH:$HOME/go/bin
-export PATH=$PATH:$HOME/go/bin
+
+if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
+    export PATH="$PATH:$HOME/go/bin"
+fi
 export PATH=$PATH:$HOME/go/bin
