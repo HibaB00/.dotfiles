@@ -10,7 +10,6 @@ echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.zshrc
 # next, reload your shell configuration
 alias vim="nvim"
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
-alias zellij="zellij options --theme catppuccin-mocha"
 # If you come from bash you might have to change your $PATH.
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -127,3 +126,5 @@ export NVM_DIR="$HOME/.nvm"
 if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
     export PATH="$PATH:$HOME/go/bin"
 fi
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
