@@ -127,4 +127,3 @@ export NVM_DIR="$HOME/.nvm"
 if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
     export PATH="$PATH:$HOME/go/bin"
 fi
-export PATH=$PATH:$HOME/go/bin
