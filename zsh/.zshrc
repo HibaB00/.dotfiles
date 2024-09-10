@@ -10,7 +10,6 @@ echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.zshrc
 # next, reload your shell configuration
 alias vim="nvim"
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
-alias zellij="zellij options --theme catppuccin-mocha"
 # If you come from bash you might have to change your $PATH.
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -127,3 +126,44 @@ export NVM_DIR="$HOME/.nvm"
 if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
     export PATH="$PATH:$HOME/go/bin"
 fi
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+
+autoload -U add-zsh-hook
+
+load-nvmrc() {
+  local nvmrc_path
+  nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version
+    nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
+      nvm use
+    fi
+  elif [ -n "$(PWD=$OLDPWD nvm_find_nvmrc)" ] && [ "$(nvm version)" != "$(nvm version default)" ]; then
+    echo "Reverting to nvm default version"
+    nvm use default
+  fi
+}
+
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH=$PATH:$HOME/go/bin
