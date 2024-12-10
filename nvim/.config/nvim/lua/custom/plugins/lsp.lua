@@ -123,6 +123,18 @@ return {
 					},
 				})
 			end,
+			["prettier"] = function()
+				-- configure emmet language server
+				lspconfig["prettier"].setup({
+					capabilities = capabilities,
+					filetypes = {
+						"html",
+						"typescriptreact",
+						"javascriptreact",
+						"tailwind",
+					},
+				})
+			end,
 			["lua_ls"] = function()
 				-- configure lua server (with special settings)
 				lspconfig["lua_ls"].setup({
