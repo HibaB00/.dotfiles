@@ -6,6 +6,15 @@ return {
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
 	},
+	opts = {
+		biome = {
+			enabled = true,
+			settings = {
+				format = true,
+			},
+			-- filetypes = { "html", "css", "javascript", "typescript", "svelte", "vue", "astro", "markdown", "json" },
+		},
+	},
 	config = function()
 		-- import lspconfig plugin
 		local lspconfig = require("lspconfig")
@@ -123,15 +132,20 @@ return {
 					},
 				})
 			end,
-			["prettier"] = function()
-				-- configure emmet language server
-				lspconfig["prettier"].setup({
+			["biome"] = function()
+				-- configure biome language server
+				lspconfig["biome"].setup({
 					capabilities = capabilities,
 					filetypes = {
 						"html",
-						"typescriptreact",
-						"javascriptreact",
-						"tailwind",
+						"css",
+						"javascript",
+						"typescript",
+						"svelte",
+						"vue",
+						"astro",
+						"markdown",
+						"json",
 					},
 				})
 			end,
