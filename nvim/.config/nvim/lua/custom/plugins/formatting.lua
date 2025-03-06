@@ -10,6 +10,15 @@ return {
 				"prettier",
 				stop_after_first = true,
 			},
+            lua = {
+                "stylua",
+                stop_after_first = true,
+            },
+            typescriptreact = {
+                "biome",
+                "prettier",
+                stop_after_first = true,
+            },
 		},
 		formatters = {
 			biome = { require_cwd = true },
