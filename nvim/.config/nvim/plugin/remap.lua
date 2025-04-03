@@ -69,3 +69,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 		require("conform").format({ bufnr = args.buf })
 	end,
 })
+
+vim.keymap.set("n", "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<CR>")
+vim.keymap.set("n", "<leader>dc", "<cmd>lua require('dap').continue()<CR>")
