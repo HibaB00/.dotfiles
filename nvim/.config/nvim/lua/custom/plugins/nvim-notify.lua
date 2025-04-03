@@ -11,5 +11,6 @@ return {
 			TRACE = "✎",
 			OFF = "",
 		}
+		opts.background_colour = "#000000" -- Set the background color
 	end,
 }
