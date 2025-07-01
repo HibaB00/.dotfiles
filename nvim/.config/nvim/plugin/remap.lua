@@ -72,3 +72,4 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 vim.keymap.set("n", "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<CR>")
 vim.keymap.set("n", "<leader>dc", "<cmd>lua require('dap').continue()<CR>")
+vim.keymap.set("n", "<leader>cc", "<cmd>ClaudeCode<CR>", { desc = "Toggle Claude Code" })
