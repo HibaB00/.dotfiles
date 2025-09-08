@@ -7,6 +7,7 @@ ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are config
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
 
 FONT="SF Pro" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
+ICON_FONT="Hack Nerd Font" # For app icons
 PADDINGS=3 # All paddings use this value (icon, label, background)
 
 # Setting up and starting the helper process
@@ -39,11 +40,11 @@ sketchybar --bar "${bar[@]}"
 # Setting up default values
 defaults=(
   updates=when_shown
-  icon.font="$FONT:Bold:14.0"
+  icon.font="$ICON_FONT:Regular:17.0"
   icon.color=$ICON_COLOR
   icon.padding_left=$PADDINGS
   icon.padding_right=$PADDINGS
-  label.font="$FONT:Semibold:13.0"
+  label.font="SF Pro:Semibold:13.0"
   label.color=$LABEL_COLOR
   label.padding_left=$PADDINGS
   label.padding_right=$PADDINGS
