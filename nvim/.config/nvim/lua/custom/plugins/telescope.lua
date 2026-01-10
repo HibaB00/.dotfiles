@@ -7,7 +7,43 @@ return {
 			local builtin = require("telescope.builtin")
 
 			-- Setup Telescope
-			telescope.setup({})
+			telescope.setup({
+				defaults = {
+					file_ignore_patterns = {
+						"node_modules",
+						".git/",
+						"dist/",
+						"build/",
+						"target/",
+						"*.lock",
+					},
+					vimgrep_arguments = {
+						"rg",
+						"--color=never",
+						"--no-heading",
+						"--with-filename",
+						"--line-number",
+						"--column",
+						"--smart-case",
+						"--hidden",
+						"--glob=!.git/",
+					},
+					layout_config = {
+						horizontal = {
+							preview_width = 0.55,
+						},
+					},
+				},
+				pickers = {
+					find_files = {
+						hidden = true,
+						find_command = { "rg", "--files", "--hidden", "--glob", "!.git/*" },
+					},
+				},
+			})
+
+			-- Load fzf extension for better performance
+			telescope.load_extension("fzf")
 
 			-- Key mappings for Telescope
 			vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags)

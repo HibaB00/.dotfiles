@@ -5,6 +5,8 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
 	},
 	opts = {
 		biome = {
@@ -18,9 +20,6 @@ return {
 	config = function()
 		-- import lspconfig plugin
 		local lspconfig = require("lspconfig")
-
-		-- import mason_lspconfig plugin
-		local mason_lspconfig = require("mason-lspconfig")
 
 		-- import cmp-nvim-lsp plugin
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -79,93 +78,99 @@ return {
 		-- used to enable autocompletion (assign to every lsp server config)
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
-		-- Change the Diagnostic symbols in the sign column (gutter)
-		-- (not in youtube nvim video)
-		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-		for type, icon in pairs(signs) do
-			local hl = "DiagnosticSign" .. type
-			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-		end
+		-- Performance: Fine-tune completion capabilities
+		capabilities.textDocument.completion.completionItem.snippetSupport = true
+		capabilities.textDocument.completion.completionItem.resolveSupport = {
+			properties = { "documentation", "detail", "additionalTextEdits" },
+		}
 
-		mason_lspconfig.setup_handlers({
-			-- default handler for installed servers
-			function(server_name)
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-				})
-			end,
-			["svelte"] = function()
-				-- configure svelte server
-				lspconfig["svelte"].setup({
-					capabilities = capabilities,
-					on_attach = function(client, bufnr)
-						vim.api.nvim_create_autocmd("BufWritePost", {
-							pattern = { "*.js", "*.ts" },
-							callback = function(ctx)
-								-- Here use ctx.match instead of ctx.file
-								client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
-							end,
-						})
+		-- Performance: Configure diagnostics for smoother editing
+		vim.diagnostic.config({
+			update_in_insert = false,
+			virtual_text = {
+				spacing = 4,
+				prefix = "●",
+			},
+			float = {
+				source = "always",
+			},
+			severity_sort = true,
+			-- Modern way to define signs (not deprecated)
+			signs = {
+				text = {
+					[vim.diagnostic.severity.ERROR] = " ",
+					[vim.diagnostic.severity.WARN] = " ",
+					[vim.diagnostic.severity.HINT] = "󰠠 ",
+					[vim.diagnostic.severity.INFO] = " ",
+				},
+			},
+		})
+
+		-- Setup LSP servers manually since mason-lspconfig.setup_handlers
+		-- might not be available at this point in the loading sequence.
+		-- Mason will still install the servers, we just configure them here.
+		
+		-- Default setup for most servers
+		local function setup_server(server_name, opts)
+			opts = opts or {}
+			opts.capabilities = opts.capabilities or capabilities
+			lspconfig[server_name].setup(opts)
+		end
+		
+		-- Configure servers with default settings
+		local servers = { "ts_ls", "html", "cssls", "tailwindcss", "pyright" }
+		for _, server in ipairs(servers) do
+			setup_server(server)
+		end
+		
+		-- Svelte with special configuration
+		setup_server("svelte", {
+			on_attach = function(client, bufnr)
+				vim.api.nvim_create_autocmd("BufWritePost", {
+					pattern = { "*.js", "*.ts" },
+					callback = function(ctx)
+						client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
 					end,
 				})
 			end,
-			["graphql"] = function()
-				-- configure graphql language server
-				lspconfig["graphql"].setup({
-					capabilities = capabilities,
-					filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-				})
-			end,
-			["emmet_ls"] = function()
-				-- configure emmet language server
-				lspconfig["emmet_ls"].setup({
-					capabilities = capabilities,
-					filetypes = {
-						"html",
-						"typescriptreact",
-						"javascriptreact",
-						"css",
-						"sass",
-						"scss",
-						"less",
-						"svelte",
-					},
-				})
-			end,
-			["biome"] = function()
-				-- configure biome language server
-				lspconfig["biome"].setup({
-					capabilities = capabilities,
-					filetypes = {
-						"html",
-						"css",
-						"javascript",
-						"typescript",
-						"svelte",
-						"vue",
-						"astro",
-						"markdown",
-						"json",
-					},
-				})
-			end,
-			["lua_ls"] = function()
-				-- configure lua server (with special settings)
-				lspconfig["lua_ls"].setup({
-					capabilities = capabilities,
-					settings = {
-						Lua = {
-							-- make the language server recognize "vim" global
-							diagnostics = {
-								globals = { "vim" },
-							},
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
-					},
-				})
-			end,
 		})
+		
+		-- GraphQL with custom filetypes
+		setup_server("graphql", {
+			filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+		})
+		
+		-- Emmet for HTML/CSS/JS frameworks
+		setup_server("emmet_ls", {
+			filetypes = {
+				"html", "typescriptreact", "javascriptreact",
+				"css", "sass", "scss", "less", "svelte",
+			},
+		})
+		
+		-- Biome for modern web development
+		setup_server("biome", {
+			filetypes = {
+				"html", "css", "javascript", "typescript",
+				"svelte", "vue", "astro", "markdown", "json",
+			},
+		})
+		
+		-- Lua LSP with Neovim-specific settings
+		setup_server("lua_ls", {
+			settings = {
+				Lua = {
+					diagnostics = {
+						globals = { "vim" },
+					},
+					completion = {
+						callSnippet = "Replace",
+					},
+				},
+			},
+		})
+		
+		-- Prisma LSP
+		setup_server("prismals")
 	end,
 }

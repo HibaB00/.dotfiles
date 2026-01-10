@@ -28,7 +28,7 @@ local function irregularWhitespace()
 	if (usesSpaces and not vim.tbl_contains(spaceFtsOnly, ft)) or (usesSpaces and width ~= spaceFiletypes[ft]) then
 		nonDefaultSetting = " " .. tostring(width) .. "󱁐  "
 	elseif usesTabs and vim.tbl_contains(spaceFtsOnly, ft) then
-		nonDefaultSetting = " 󰌒 " .. tostring(width)(" ")
+		nonDefaultSetting = " 󰌒 " .. tostring(width) .. " "
 	end
 
 	-- wrong or mixed indentation
@@ -256,7 +256,6 @@ local lualineConfig = {
 
 return {
 	"nvim-lualine/lualine.nvim",
-	lazy = false, -- load immediately so there is no flickering
 	dependencies = "nvim-tree/nvim-web-devicons",
 	opts = lualineConfig,
 }

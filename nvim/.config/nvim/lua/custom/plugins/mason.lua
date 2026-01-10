@@ -37,6 +37,7 @@ return {
 				"emmet_ls",
 				"prismals",
 				"pyright",
+				"biome",
 			},
 		})
 
@@ -44,11 +45,12 @@ return {
 			ensure_installed = {
 				"prettier", -- prettier formatter
 				"stylua", -- lua formatter
-				"isort", -- python formatter
-				"black", -- python formatter
-				"pylint",
 				"eslint_d",
+				-- Note: Python tools (black, isort, pylint) are commented out
+				-- Install them manually if needed: :MasonInstall black isort pylint
+				-- Or install via pip: pip3 install --user black isort pylint
 			},
+			auto_update = false,
 		})
 	end,
 }

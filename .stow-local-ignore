@@ -1,0 +1,18 @@
+# Git
+\.git
+\.gitignore
+\.github
+
+# Documentation
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Directories to ignore
+^/docs
+^/scripts
+
+# Files to ignore
+^/Brewfile
+^/install\.sh
+^/Makefile

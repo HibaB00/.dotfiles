@@ -1,0 +1,44 @@
+# Neovim
+nvim/.config/nvim/lazy-lock.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Secrets & Credentials
+*.env
+*.env.*
+!*.env.example
+*secret*
+*credentials*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_dsa
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
