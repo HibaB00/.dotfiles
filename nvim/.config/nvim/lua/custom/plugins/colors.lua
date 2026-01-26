@@ -1,12 +1,10 @@
 return {
-	"rose-pine/neovim",
-	name = "rose-pine",
+	"datsfilipe/vesper.nvim",
+	name = "vesper",
 	config = function()
-		require("rose-pine").setup({
-			styles = {
-				transparency = false,
-			},
+		require("vesper").setup({
+			transparent = false,
 		})
-		vim.cmd("colorscheme rose-pine")
+		vim.cmd("colorscheme vesper")
 	end,
 }
