@@ -1,10 +1,8 @@
 return {
-	"datsfilipe/vesper.nvim",
-	name = "vesper",
+	"nyoom-engineering/oxocarbon.nvim",
+	name = "oxocarbon",
 	config = function()
-		require("vesper").setup({
-			transparent = false,
-		})
-		vim.cmd("colorscheme vesper")
+		vim.opt.background = "dark"
+		vim.cmd("colorscheme oxocarbon")
 	end,
 }
