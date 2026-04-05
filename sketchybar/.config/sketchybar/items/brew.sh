@@ -4,7 +4,8 @@
 # e.g. via function in .zshrc
 
 brew=(
-  icon=􀐛
+  icon=󰏗
+  icon.font="$ICON_FONT:Bold:17.0"
   label=?
   padding_right=10
   script="$PLUGIN_DIR/brew.sh"

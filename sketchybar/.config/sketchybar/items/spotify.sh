@@ -9,8 +9,8 @@ spotify_anchor=(
   popup.horizontal=on
   popup.align=center
   popup.height=150
-  icon=􁁒
-  icon.font="$FONT:Regular:25.0"
+  icon=󰓇
+  icon.font="$ICON_FONT:Regular:22.0"
   label.drawing=off
   drawing=off
   y_offset=2
@@ -78,7 +78,7 @@ spotify_state=(
 )
 
 spotify_shuffle=(
-  icon=􀊝
+  icon=󰒝
   icon.padding_left=5
   icon.padding_right=5
   icon.color=$BLACK
@@ -89,7 +89,7 @@ spotify_shuffle=(
 )
 
 spotify_back=(
-  icon=􀊎
+  icon=󰒮
   icon.padding_left=5
   icon.padding_right=5
   icon.color=$BLACK
@@ -99,7 +99,7 @@ spotify_back=(
 )
 
 spotify_play=(
-  icon=􀊔
+  icon=󰐊
   background.height=40
   background.corner_radius=20
   width=40
@@ -118,7 +118,7 @@ spotify_play=(
 )
 
 spotify_next=(
-  icon=􀊐
+  icon=󰒭
   icon.padding_left=5
   icon.padding_right=5
   icon.color=$BLACK
@@ -128,7 +128,7 @@ spotify_next=(
 )
 
 spotify_repeat=(
-  icon=􀊞
+  icon=󰑖
   icon.highlight_color=$GREY
   icon.padding_left=5
   icon.padding_right=10

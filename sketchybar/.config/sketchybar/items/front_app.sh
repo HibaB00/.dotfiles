@@ -4,7 +4,7 @@ FRONT_APP_SCRIPT='sketchybar --set $NAME label="$INFO"'
 
 yabai=(
   script="$PLUGIN_DIR/yabai.sh"
-  icon.font="$FONT:Bold:16.0"
+  icon.font="$ICON_FONT:Bold:16.0"
   label.drawing=off
   icon.width=30
   icon=$YABAI_GRID

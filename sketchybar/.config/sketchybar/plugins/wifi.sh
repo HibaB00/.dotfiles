@@ -2,11 +2,10 @@
 
 source "$HOME/.config/sketchybar/colors.sh"
 
-WIFI=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I)
-SSID=$(echo "$WIFI" | grep -o "SSID: .*" | sed 's/^SSID: //')
+WIFI_STATUS=$(ifconfig en0 2>/dev/null | grep "status:" | awk '{print $2}')
 
-if [ "$SSID" = "" ]; then
-  sketchybar --set wifi icon=󰤭 label="Offline" label.color=$RED
+if [ "$WIFI_STATUS" = "active" ]; then
+  sketchybar --set wifi icon=󰤨 label="Connected" label.color=$WHITE
 else
-  sketchybar --set wifi icon=󰤨 label="$SSID" label.color=$WHITE
+  sketchybar --set wifi icon=󰤭 label="Offline" label.color=$RED
 fi

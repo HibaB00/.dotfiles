@@ -31,9 +31,10 @@ update() {
     PADDING=0
 
     if [ "${repo}" = "" ] && [ "${title}" = "" ]; then
-      repo="Note"
+      ICON=$BELL
+      repo=""
       title="No new notifications"
-    fi 
+    fi
     case "${type}" in
       "'Issue'") COLOR=$GREEN; ICON=$GIT_ISSUE; URL="$(gh api "$(echo "${url}" | sed -e "s/^'//" -e "s/'$//")" | jq .html_url)"
       ;;
@@ -47,7 +48,7 @@ update() {
     
     if [ "$IMPORTANT" != "" ]; then
       COLOR=$RED
-      ICON=􀁞
+      ICON=󰀦
       args+=(--set github.bell icon.color=$COLOR)
     fi
     

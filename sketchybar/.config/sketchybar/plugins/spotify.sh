@@ -70,7 +70,7 @@ update ()
              --set spotify.album label="$ALBUM"
              --set spotify.artist label="$ARTIST")
     fi
-    args+=(--set spotify.play icon=􀊆
+    args+=(--set spotify.play icon=󰏤
            --set spotify.shuffle icon.highlight=$SHUFFLE
            --set spotify.repeat icon.highlight=$REPEAT
            --set spotify.cover background.image="${TMPDIR:-/tmp}/sketchybar_cover.jpg"
@@ -78,7 +78,7 @@ update ()
            --set spotify.anchor drawing=on                      )
   else
     args+=(--set spotify.anchor drawing=off popup.drawing=off
-           --set spotify.play icon=􀊄                         )
+           --set spotify.play icon=󰐊                         )
   fi
   sketchybar -m "${args[@]}"
 }
