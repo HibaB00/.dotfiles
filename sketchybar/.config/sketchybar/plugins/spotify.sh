@@ -41,6 +41,12 @@ shuffle ()
 
 update ()
 {
+  # Check if Spotify is running
+  if ! pgrep -xq "Spotify"; then
+    sketchybar --set spotify.anchor drawing=off popup.drawing=off
+    return
+  fi
+
   PLAYING=1
   if [ "$(echo "$INFO" | jq -r '.["Player State"]')" = "Playing" ]; then
     PLAYING=0
@@ -54,7 +60,7 @@ update ()
 
   args=()
   if [ $PLAYING -eq 0 ]; then
-    curl -s --max-time 20 "$COVER" -o /tmp/cover.jpg
+    curl -s --max-time 20 "$COVER" -o ${TMPDIR:-/tmp}/sketchybar_cover.jpg
     if [ "$ARTIST" == "" ]; then
       args+=(--set spotify.title label="$TRACK"
              --set spotify.album label="Podcast"
@@ -67,7 +73,7 @@ update ()
     args+=(--set spotify.play icon=􀊆
            --set spotify.shuffle icon.highlight=$SHUFFLE
            --set spotify.repeat icon.highlight=$REPEAT
-           --set spotify.cover background.image="/tmp/cover.jpg"
+           --set spotify.cover background.image="${TMPDIR:-/tmp}/sketchybar_cover.jpg"
                                background.color=0x00000000
            --set spotify.anchor drawing=on                      )
   else
