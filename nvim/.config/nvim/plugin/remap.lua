@@ -10,13 +10,6 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
-vim.keymap.set("n", "<leader>vwm", function()
-	require("vim-with-me").StartVimWithMe()
-end)
-vim.keymap.set("n", "<leader>svwm", function()
-	require("vim-with-me").StopVimWithMe()
-end)
-
 -- greatest remap ever
 vim.keymap.set("x", "<leader>p", [["_dP]])
 
@@ -47,14 +40,6 @@ vim.keymap.set("n", "<leader><leader>", function()
 	vim.cmd("so")
 end)
 
-vim.diagnostic.config({
-	virtual_lines = true,
-	signs = true,
-	underline = true,
-	update_in_insert = true,
-	severity_sort = true,
-})
-
 vim.api.nvim_create_autocmd("TermOpen", {
 	group = vim.api.nvim_create_augroup("custom-term-open", { clear = true }),
 	callback = function()
@@ -72,4 +57,4 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 vim.keymap.set("n", "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<CR>")
 vim.keymap.set("n", "<leader>dc", "<cmd>lua require('dap').continue()<CR>")
-vim.keymap.set("n", "<leader>cc", "<cmd>ClaudeCode<CR>", { desc = "Toggle Claude Code" })
+vim.keymap.set("n", "<leader>ai", "<cmd>ClaudeCode<CR>", { desc = "Toggle Claude Code" })

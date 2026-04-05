@@ -114,14 +114,6 @@ local function clock()
 	return time
 end
 
--- wrapper to not require navic directly
-local function navicBreadcrumbs()
-	if bo.filetype == "css" or not require("nvim-navic").is_available() then
-		return ""
-	end
-	return require("nvim-navic").get_location()
-end
-
 --------------------------------------------------------------------------------
 
 ---improves upon the default statusline components by having properly working icons
@@ -134,8 +126,6 @@ local function currentFile()
 	local name = fn.expand("%:t")
 	if ft == "octo" and name:find("^%d$") then
 		name = "#" .. name
-	elseif ft == "TelescopePrompt" then
-		name = "Telescope"
 	end
 
 	local deviconsInstalled, devicons = pcall(require, "nvim-web-devicons")
@@ -174,7 +164,7 @@ end
 
 -- FIX Add missing buffer names for current file component
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "lazy", "mason", "TelescopePrompt", "noice" },
+	pattern = { "lazy", "mason", "noice" },
 	callback = function()
 		local name = vim.fn.expand("<amatch>")
 		name = name:sub(1, 1):upper() .. name:sub(2) -- capitalize
@@ -206,9 +196,7 @@ local lualineConfig = {
 				end,
 			},
 		},
-		lualine_b = {
-			{ navicBreadcrumbs, section_separators = topSeparators },
-		},
+		lualine_b = {},
 		lualine_c = {},
 		lualine_x = {},
 		-- INFO dap and recording status defined in the respective plugin configs
