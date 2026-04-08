@@ -67,10 +67,7 @@ return {
 		},
 		-- Indent guides
 		indent = {
-			enabled = true,
-			animate = {
-				enabled = true,
-			},
+			enabled = false,
 		},
 		-- Smooth scrolling
 		scroll = {

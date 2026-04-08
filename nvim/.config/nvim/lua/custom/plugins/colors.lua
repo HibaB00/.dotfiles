@@ -1,13 +1,11 @@
 return {
-	"bluz71/vim-nightfly-colors",
-	name = "nightfly",
+	"rebelot/kanagawa.nvim",
+	name = "kanagawa",
 	lazy = false,
 	priority = 1000,
 	config = function()
-		vim.g.nightflyCursorColor = true
-		vim.g.nightflyTerminalColors = true
-		vim.g.nightflyNormalFloat = true
+		require("kanagawa").setup({})
 		vim.opt.background = "dark"
-		vim.cmd("colorscheme nightfly")
+		vim.cmd("colorscheme kanagawa")
 	end,
 }
