@@ -20,6 +20,13 @@ alias vim="nvim"
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
 
 # ============================================
+# Functions
+# ============================================
+zj() {
+    zellij attach --create "${PWD:t}"
+}
+
+# ============================================
 # PATH Configuration
 # ============================================
 # Python user binaries

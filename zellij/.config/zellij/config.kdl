@@ -7,6 +7,19 @@ keybinds {
     shared_except "move" "locked" {
         // bind "Ctrl m" { SwitchToMode "Move"; }
     }
+    // Claude Code popup — press Alt+c to spawn, Alt+f (default) to toggle visibility.
+    shared_except "locked" {
+        bind "Alt c" {
+            Run "claude" {
+                floating true
+                x "10%"
+                y "10%"
+                width "80%"
+                height "80%"
+                close_on_exit true
+            }
+        }
+    }
 }
 
 theme "default"
