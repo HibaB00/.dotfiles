@@ -26,16 +26,16 @@ theme "default"
 
 themes {
     default {
-        bg "#585b70" // Surface2
-        fg "#cdd6f4"
-        red "#f38ba8"
-        green "#a6e3a1"
-        blue "#89b4fa"
-        yellow "#f9e2af"
-        magenta "#f5c2e7" // Pink
-        orange "#fab387" // Peach
-        cyan "#89dceb" // Sky
-        black "#181825" // Mantle
-        white "#cdd6f4"
+        bg "#0E1018"
+        fg "#C8CCD8"
+        red "#A08CC0"
+        green "#7A9AD0"
+        blue "#7A9AD0"
+        yellow "#C8CCD8"
+        magenta "#A08CC0"
+        orange "#C8CCD8"
+        cyan "#7A9AD0"
+        black "#08090E"
+        white "#C8CCD8"
     }
 }
