@@ -22,16 +22,25 @@ return {
 				colors.dark5 = "#50546A"
 				colors.terminal_black = "#282C3C"
 
-				-- Kill warm colors — remap to blue/purple/white
+				-- Kill warm colors — remap to a cool palette with enough variety
+				colors.blue = "#7A9AD0"
+				colors.blue1 = "#8AAEE0"
+				colors.blue2 = "#6A8AC0"
+				colors.blue5 = "#9DB8E0"
+				colors.blue6 = "#9DB8E0"
+				colors.blue7 = "#5A6E96"
+				colors.magenta = "#B8A8D8"
+				colors.magenta2 = "#A08CC0"
+				colors.purple = "#A08CC0"
 				colors.green = "#7A9AD0"
-				colors.green1 = "#7A9AD0"
-				colors.green2 = "#7A9AD0"
-				colors.yellow = "#C8CCD8"
-				colors.orange = "#C8CCD8"
-				colors.red = "#A08CC0"
-				colors.red1 = "#A08CC0"
-				colors.teal = "#7A9AD0"
-				colors.cyan = "#7A9AD0"
+				colors.green1 = "#8AAEE0"
+				colors.green2 = "#6A8AC0"
+				colors.yellow = "#B8A8D8"
+				colors.orange = "#9DB8E0"
+				colors.red = "#C89AB8"
+				colors.red1 = "#B88AA8"
+				colors.teal = "#8AB8C8"
+				colors.cyan = "#8AB8C8"
 			end,
 			on_highlights = function(hl, colors)
 				hl.LineNr = { fg = "#50546A", bg = "#08090E" }
