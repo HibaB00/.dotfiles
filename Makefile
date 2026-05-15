@@ -31,10 +31,10 @@ brew:
 	@brew bundle
 
 stow-all:
-	@stow zsh nvim kitty git sketchybar zellij
+	@stow zsh nvim kitty git sketchybar zellij lazygit
 
 unstow-all:
-	@stow -D zsh nvim kitty git sketchybar zellij
+	@stow -D zsh nvim kitty git sketchybar zellij lazygit
 
 clean: unstow-all
 	@echo "All configurations unstowed"

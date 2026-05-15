@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 # Configuration
 # ============================================
 DOTFILES_DIR="$HOME/.dotfiles"
-CONFIGS=("zsh" "nvim" "kitty" "git" "sketchybar" "zellij")
+CONFIGS=("zsh" "nvim" "kitty" "git" "sketchybar" "zellij" "lazygit")
 
 # ============================================
 # Helper Functions
