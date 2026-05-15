@@ -1,3 +1,5 @@
+local p = require("custom.palette")
+
 return {
 	"folke/tokyonight.nvim",
 	lazy = false,
@@ -6,53 +8,52 @@ return {
 		require("tokyonight").setup({
 			style = "night",
 			on_colors = function(colors)
-				-- Void Space backgrounds
-				colors.bg = "#08090E"
-				colors.bg_dark = "#060810"
-				colors.bg_float = "#0E1018"
-				colors.bg_popup = "#0E1018"
-				colors.bg_sidebar = "#08090E"
-				colors.bg_statusline = "#0E1018"
-				colors.bg_highlight = "#141620"
-				colors.fg = "#D8DCE8"
-				colors.fg_dark = "#B8BCC8"
-				colors.fg_gutter = "#50546A"
-				colors.comment = "#5A5F78"
-				colors.dark3 = "#50546A"
-				colors.dark5 = "#6A6F88"
-				colors.terminal_black = "#282C3C"
+				colors.bg = p.bg
+				colors.bg_dark = p.bg_dark
+				colors.bg_float = p.bg_float
+				colors.bg_popup = p.bg_float
+				colors.bg_sidebar = p.bg
+				colors.bg_statusline = p.bg_float
+				colors.bg_highlight = p.bg_highlight
+				colors.fg = p.fg
+				colors.fg_dark = p.fg_dark
+				colors.fg_gutter = p.gutter
+				colors.comment = p.comment
+				colors.dark3 = p.gutter
+				colors.dark5 = p.comment
+				colors.terminal_black = p.bg_select
 
-				-- Cool but vivid: each role gets a distinct, saturated hue
-				colors.blue = "#7AA2F7"        -- keywords (return, export, function, const)
-				colors.blue1 = "#82AAFF"
-				colors.blue2 = "#5A8BC0"
-				colors.blue5 = "#89DDFF"       -- punctuation / operators
-				colors.blue6 = "#B4CCEC"
-				colors.blue7 = "#5A6E96"
-				colors.cyan = "#7DCFFF"         -- types, JSX components
-				colors.teal = "#73DACA"         -- methods, properties
-				colors.magenta = "#C7A1FF"      -- tags, decorators
-				colors.magenta2 = "#BB9AF7"
-				colors.purple = "#BB9AF7"       -- numbers, booleans, constants
-				colors.green = "#9DC8FF"        -- strings (cool blue tint instead of warm green)
-				colors.green1 = "#8AB8F0"
-				colors.green2 = "#6A8AC0"
-				colors.yellow = "#E0CCFF"       -- variables, parameters
-				colors.orange = "#A9C5FF"       -- literals / special identifiers
-				colors.red = "#F38BA8"          -- errors, deletions
-				colors.red1 = "#E5779A"
+				-- Cool palette mapped onto tokyonight's color slots
+				colors.blue = p.blue
+				colors.blue1 = p.blue
+				colors.blue2 = p.blue
+				colors.blue5 = p.cyan
+				colors.blue6 = p.variable
+				colors.blue7 = p.comment
+				colors.cyan = p.cyan
+				colors.teal = p.teal
+				colors.magenta = p.magenta
+				colors.magenta2 = p.purple
+				colors.purple = p.purple
+				colors.green = p.string
+				colors.green1 = p.string
+				colors.green2 = p.blue
+				colors.yellow = p.variable
+				colors.orange = p.number
+				colors.red = p.red
+				colors.red1 = p.red
 			end,
-			on_highlights = function(hl, colors)
-				hl.LineNr = { fg = "#50546A", bg = "#08090E" }
-				hl.CursorLineNr = { fg = "#C8CCD8", bg = "#0E1018" }
-				hl.CursorLine = { bg = "#0E1018" }
-				hl.SignColumn = { bg = "#08090E" }
-				hl.NormalFloat = { bg = "#0E1018" }
-				hl.FloatBorder = { bg = "#0E1018", fg = "#50546A" }
-				hl.Pmenu = { bg = "#0E1018" }
-				hl.PmenuSel = { bg = "#1A1E2E" }
-				hl.TelescopeNormal = { bg = "#08090E" }
-				hl.TelescopeBorder = { bg = "#08090E", fg = "#50546A" }
+			on_highlights = function(hl)
+				hl.LineNr = { fg = p.gutter, bg = p.bg }
+				hl.CursorLineNr = { fg = p.fg, bg = p.bg_float }
+				hl.CursorLine = { bg = p.bg_float }
+				hl.SignColumn = { bg = p.bg }
+				hl.NormalFloat = { bg = p.bg_float }
+				hl.FloatBorder = { bg = p.bg_float, fg = p.gutter }
+				hl.Pmenu = { bg = p.bg_float }
+				hl.PmenuSel = { bg = p.bg_select }
+				hl.TelescopeNormal = { bg = p.bg }
+				hl.TelescopeBorder = { bg = p.bg, fg = p.gutter }
 			end,
 		})
 		vim.cmd("colorscheme tokyonight-night")

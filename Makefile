@@ -1,4 +1,4 @@
-.PHONY: help install update health brew bootstrap clean stow-all unstow-all
+.PHONY: help install update health brew bootstrap clean stow-all unstow-all theme
 
 # Default target
 help:
@@ -12,6 +12,7 @@ help:
 	@echo "  brew       - Install Homebrew dependencies"
 	@echo "  stow-all   - Stow all configurations"
 	@echo "  unstow-all - Unstow all configurations"
+	@echo "  theme      - Render theme/colors.sh into all tool configs"
 	@echo "  clean      - Remove all symlinks"
 	@echo "  help       - Show this help message"
 
@@ -29,6 +30,9 @@ health:
 
 brew:
 	@brew bundle
+
+theme:
+	@./scripts/apply-theme.sh
 
 stow-all:
 	@stow zsh nvim kitty git sketchybar zellij lazygit
