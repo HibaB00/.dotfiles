@@ -5,8 +5,8 @@
     "Write"
   ],
   "filesModified": [
-    "/Users/hibabayazid/.dotfiles/nvim/.config/nvim/lua/custom/plugins/completion.lua"
+    "/Users/hibabayazid/Library/Application Support/lazygit/config.yml"
   ],
-  "codeWritten": "return {\n\t\"saghen/blink.cmp\",\n\tversion = \"1.*\",\n\tdependencies = {\n\t\t\"rafamadriz/friendly-snippets\",\n\t},\n\t---@module 'blink.cmp'\n\t---@type blink.cmp.Config\n\topts = {\n\t\tkeymap = {\n\t\t\tpreset = \"default\",\n\t\t\t[\"<C-y>\"] = { \"select_and_accept\" },\n\t\t\t[\"<CR>\"] = { \"select_and_accept\", \"fallback\" },\n\t\t\t[\"<C-n>\"] = { \"select_next\", \"fallback\" },\n\t\t\t[\"<C-p>\"] = { \"select_prev\", \"fallback\" },\n\t\t\t[\"<C-b>\"] = { \"scroll_documentation_up\", \"fallback\" },\n\t\t\t[\"<C-f>\"] = { \"scroll_documentation_down\", \"fallback\" },\n\t\t\t[\"<C-Space>\"] = { \"show\", \"fallback\" },\n\t\t},\n\t\tappearance = {\n\t\t\tuse_nvim_cmp_as_default = false,\n\t\t\tnerd_font_variant = \"mono\",\n\t\t},\n\t\tsources = {\n\t\t\tdefault = { \"lsp\", \"path\", \"snippets\", \"buffer\" },\n\t\t},\n\t\tcompletion = {\n\t\t\tdocumentation = {\n\t\t\t\tauto_show = true,\n\t\t\t\tauto_show_delay_ms = 200,\n\t\t\t},\n\t\t},\n\t\tsignature = { enabled = true },\n\t},\n}\n",
-  "timestamp": "2026-05-15T17:49:47.585Z"
+  "codeWritten": "# Void-space theme — matches the tokyonight-night palette in nvim\ngui:\n  theme:\n    activeBorderColor:\n      - \"#7DCFFF\"\n      - bold\n    inactiveBorderColor:\n      - \"#5A5F78\"\n    optionsTextColor:\n      - \"#7AA2F7\"\n    selectedLineBgColor:\n      - \"#141620\"\n    selectedRangeBgColor:\n      - \"#141620\"\n    cherryPickedCommitBgColor:\n      - \"#1F2335\"\n    cherryPickedCommitFgColor:\n      - \"#BB9AF7\"\n    markedBaseCommitBgColor:\n      - \"#1F2335\"\n    markedBaseCommitFgColor:\n      - \"#C7A1FF\"\n    unstagedChangesColor:\n      - \"#F38BA8\"\n    defaultFgColor:\n      - \"#D8DCE8\"\n    searchingActiveBorderColor:\n      - \"#7DCFFF\"\n  authorColors:\n    \"*\": \"#7AA2F7\"\n  branchColors:\n    main: \"#BB9AF7\"\n    master: \"#BB9AF7\"\n",
+  "timestamp": "2026-05-15T17:55:21.853Z"
 }
