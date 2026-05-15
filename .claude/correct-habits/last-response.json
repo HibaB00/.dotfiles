@@ -2,11 +2,11 @@
   "sessionId": "5ff44057-2a4f-48c4-98b6-a53db6c3085d",
   "response": "",
   "toolsUsed": [
-    "Edit"
+    "Write"
   ],
   "filesModified": [
-    "/Users/hibabayazid/.dotfiles/nvim/.config/nvim/plugin/set.lua"
+    "/Users/hibabayazid/.dotfiles/nvim/.config/nvim/lua/custom/plugins/completion.lua"
   ],
-  "codeWritten": "vim.g.mapleader = \" \"\n\n-- Disable language providers we don't use (silences :checkhealth warnings)\nvim.g.loaded_python3_provider = 0\nvim.g.loaded_ruby_provider = 0\nvim.g.loaded_perl_provider = 0\nvim.g.loaded_node_provider = 0\n",
-  "timestamp": "2026-05-15T17:44:30.644Z"
+  "codeWritten": "return {\n\t\"saghen/blink.cmp\",\n\tversion = \"1.*\",\n\tdependencies = {\n\t\t\"rafamadriz/friendly-snippets\",\n\t},\n\t---@module 'blink.cmp'\n\t---@type blink.cmp.Config\n\topts = {\n\t\tkeymap = {\n\t\t\tpreset = \"default\",\n\t\t\t[\"<C-y>\"] = { \"select_and_accept\" },\n\t\t\t[\"<CR>\"] = { \"select_and_accept\", \"fallback\" },\n\t\t\t[\"<C-n>\"] = { \"select_next\", \"fallback\" },\n\t\t\t[\"<C-p>\"] = { \"select_prev\", \"fallback\" },\n\t\t\t[\"<C-b>\"] = { \"scroll_documentation_up\", \"fallback\" },\n\t\t\t[\"<C-f>\"] = { \"scroll_documentation_down\", \"fallback\" },\n\t\t\t[\"<C-Space>\"] = { \"show\", \"fallback\" },\n\t\t},\n\t\tappearance = {\n\t\t\tuse_nvim_cmp_as_default = false,\n\t\t\tnerd_font_variant = \"mono\",\n\t\t},\n\t\tsources = {\n\t\t\tdefault = { \"lsp\", \"path\", \"snippets\", \"buffer\" },\n\t\t},\n\t\tcompletion = {\n\t\t\tdocumentation = {\n\t\t\t\tauto_show = true,\n\t\t\t\tauto_show_delay_ms = 200,\n\t\t\t},\n\t\t},\n\t\tsignature = { enabled = true },\n\t},\n}\n",
+  "timestamp": "2026-05-15T17:49:47.585Z"
 }
