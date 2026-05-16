@@ -34,6 +34,10 @@ return {
 				"toml",
 				"markdown",
 				"markdown_inline",
+				-- Misc
+				"regex", -- silences noice's regex parser warning, used for cmdline highlighting
+				"svelte",
+				"vue",
 			},
 
 			-- Install parsers synchronously (only applied to `ensure_installed`)

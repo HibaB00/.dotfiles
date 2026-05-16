@@ -26,6 +26,10 @@ zj() {
     zellij attach --create "${PWD:t}"
 }
 
+# Lazygit reads config from ~/Library/Application Support/lazygit on macOS by
+# default; point it at the stowed ~/.config/lazygit location instead.
+export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
+
 # ============================================
 # PATH Configuration
 # ============================================

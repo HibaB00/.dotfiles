@@ -1,6 +1,9 @@
 # Neovim
 nvim/.config/nvim/lazy-lock.json
 
+# Claude Code local state (correct-habits, transcripts) — never push
+.claude/
+
 # macOS
 .DS_Store
 .AppleDouble

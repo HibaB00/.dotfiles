@@ -18,9 +18,6 @@ return {
 		},
 	},
 	config = function()
-		-- import lspconfig plugin
-		local lspconfig = require("lspconfig")
-
 		local keymap = vim.keymap -- for conciseness
 
 		vim.api.nvim_create_autocmd("LspAttach", {
@@ -75,6 +72,13 @@ return {
 		-- used to enable autocompletion (assign to every lsp server config)
 		local capabilities = require("blink.cmp").get_lsp_capabilities()
 
+		-- Disable LSP file watchers — libuv hits EMFILE in monorepos on macOS
+		capabilities.workspace = capabilities.workspace or {}
+		capabilities.workspace.didChangeWatchedFiles = {
+			dynamicRegistration = false,
+			relativePatternSupport = false,
+		}
+
 		-- Diagnostics config — tiny-inline-diagnostic handles virtual text
 		vim.diagnostic.config({
 			update_in_insert = false,
@@ -93,71 +97,59 @@ return {
 			},
 		})
 
-		-- Setup LSP servers manually since mason-lspconfig.setup_handlers
-		-- might not be available at this point in the loading sequence.
-		-- Mason will still install the servers, we just configure them here.
-		
-		-- Default setup for most servers
-		local function setup_server(server_name, opts)
-			opts = opts or {}
-			opts.capabilities = opts.capabilities or capabilities
-			lspconfig[server_name].setup(opts)
-		end
-		
-		-- Configure servers with default settings
-		local servers = { "ts_ls", "html", "cssls", "tailwindcss", "pyright" }
-		for _, server in ipairs(servers) do
-			setup_server(server)
-		end
-		
-		-- Svelte with special configuration
-		setup_server("svelte", {
+		-- Apply capabilities to every server (new vim.lsp.config API, lspconfig v3)
+		vim.lsp.config("*", { capabilities = capabilities })
+
+		vim.lsp.config("svelte", {
 			on_attach = function(client, bufnr)
 				vim.api.nvim_create_autocmd("BufWritePost", {
 					pattern = { "*.js", "*.ts" },
 					callback = function(ctx)
-						client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
+						client:notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
 					end,
 				})
 			end,
 		})
-		
-		-- GraphQL with custom filetypes
-		setup_server("graphql", {
+
+		vim.lsp.config("graphql", {
 			filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
 		})
-		
-		-- Emmet for HTML/CSS/JS frameworks
-		setup_server("emmet_ls", {
+
+		vim.lsp.config("emmet_ls", {
 			filetypes = {
 				"html", "typescriptreact", "javascriptreact",
 				"css", "sass", "scss", "less", "svelte",
 			},
 		})
-		
-		-- Biome for modern web development
-		setup_server("biome", {
+
+		vim.lsp.config("biome", {
 			filetypes = {
 				"html", "css", "javascript", "typescript",
 				"svelte", "vue", "astro", "markdown", "json",
 			},
 		})
-		
-		-- Lua LSP with Neovim-specific settings
-		setup_server("lua_ls", {
+
+		vim.lsp.config("lua_ls", {
 			settings = {
 				Lua = {
-					diagnostics = {
-						globals = { "vim" },
-					},
-					completion = {
-						callSnippet = "Replace",
-					},
+					diagnostics = { globals = { "vim" } },
+					completion = { callSnippet = "Replace" },
 				},
 			},
 		})
-		
-		-- Prisma LSP
-		setup_server("prismals")
+
+		vim.lsp.enable({
+			"ts_ls",
+			"html",
+			"cssls",
+			"tailwindcss",
+			"pyright",
+			"svelte",
+			"graphql",
+			"emmet_ls",
+			"biome",
+			"lua_ls",
+			"prismals",
+		})
 	end,
 }

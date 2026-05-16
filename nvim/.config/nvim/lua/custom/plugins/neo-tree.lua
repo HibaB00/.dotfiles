@@ -20,17 +20,22 @@ return {
 			follow_current_file = {
 				enabled = true,
 			},
-			use_libuv_file_watcher = true,
+			use_libuv_file_watcher = false,
 			filtered_items = {
 				visible = true,
 				hide_dotfiles = false,
-				hide_gitignored = false,
+				hide_gitignored = true,
 				hide_by_name = {
 					".DS_Store",
 					"thumbs.db",
 				},
 				never_show = {
 					".git",
+					"node_modules",
+					".next",
+					".turbo",
+					"dist",
+					"build",
 				},
 			},
 		},
