@@ -52,8 +52,6 @@ return {
 				hl.FloatBorder = { bg = p.bg_float, fg = p.gutter }
 				hl.Pmenu = { bg = p.bg_float }
 				hl.PmenuSel = { bg = p.bg_select }
-				hl.TelescopeNormal = { bg = p.bg }
-				hl.TelescopeBorder = { bg = p.bg, fg = p.gutter }
 			end,
 		})
 		vim.cmd("colorscheme tokyonight-night")

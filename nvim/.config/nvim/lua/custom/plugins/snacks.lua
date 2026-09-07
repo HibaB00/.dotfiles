@@ -90,6 +90,7 @@ return {
 		{ "<leader>lm", function() Snacks.picker.grep() end, desc = "Live Grep" },
 		{ "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
 		{ "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent Files" },
+		{ "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
 		-- Terminal
 		{ "<leader>tt", function() Snacks.terminal() end, desc = "Toggle Terminal", mode = { "n", "t" } },
 	},

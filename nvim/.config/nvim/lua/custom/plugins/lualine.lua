@@ -3,63 +3,21 @@ local fn = vim.fn
 
 --------------------------------------------------------------------------------
 
--- displays irregular indentation and linebreaks, displays nothing when all is good
--- selene: allow(high_cyclomatic_complexity)
+-- flags indentation that disagrees with 'expandtab', and non-unix line endings
 local function irregularWhitespace()
-	-- USER CONFIG
-	-- filetypes and the number of spaces they use. Omit or set to nil to use tabs for that filetype.
-	local spaceFiletypes = { python = 4, yaml = 2 }
-	local ignoredFiletypes = { "css", "markdown", "gitcommit" }
-	local linebreakType = "unix" ---@type "unix" | "mac" | "dos"
-
-	-- vars & guard
-	local usesSpaces = bo.expandtab
-	local usesTabs = not bo.expandtab
-	local brUsed = bo.fileformat
-	local ft = bo.filetype
-	local width = bo.tabstop
-	if vim.tbl_contains(ignoredFiletypes, ft) or fn.mode() ~= "n" or bo.buftype ~= "" then
+	if fn.mode() ~= "n" or bo.buftype ~= "" or vim.tbl_contains({ "css", "markdown", "gitcommit" }, bo.filetype) then
 		return ""
 	end
-
-	-- non-default indentation setting (e.g. changed via indent-o-matic)
-	local nonDefaultSetting = ""
-	local spaceFtsOnly = vim.tbl_keys(spaceFiletypes)
-	if (usesSpaces and not vim.tbl_contains(spaceFtsOnly, ft)) or (usesSpaces and width ~= spaceFiletypes[ft]) then
-		nonDefaultSetting = " " .. tostring(width) .. "󱁐  "
-	elseif usesTabs and vim.tbl_contains(spaceFtsOnly, ft) then
-		nonDefaultSetting = " 󰌒 " .. tostring(width) .. " "
+	local out = ""
+	if bo.expandtab and fn.search("^\t", "nw") > 0 then
+		out = " 󰌒 "
+	elseif not bo.expandtab and fn.search("^ ", "nw") > 0 then
+		out = " 󱁐 "
 	end
-
-	-- wrong or mixed indentation
-	local hasTabs = fn.search("^\t", "nw") > 0
-	local hasSpaces = fn.search("^ ", "nw") > 0
-	-- exception, jsdocs: space not followed by "*"
-	if bo.filetype == "javascript" then
-		hasSpaces = fn.search([[^ \(\*\)\@!]], "nw") > 0
+	if bo.fileformat ~= "unix" then
+		out = out .. " 󰌑 "
 	end
-	local wrongIndent = ""
-	if usesTabs and hasSpaces then
-		wrongIndent = " 󱁐 "
-	elseif usesSpaces and hasTabs then
-		wrongIndent = " 󰌒 "
-	elseif hasTabs and hasSpaces then
-		wrongIndent = " 󱁐 + 󰌒 "
-	end
-
-	-- line breaks
-	local linebreakIcon = ""
-	if brUsed ~= linebreakType then
-		if brUsed == "unix" then
-			linebreakIcon = " 󰌑 "
-		elseif brUsed == "mac" then
-			linebreakIcon = " 󰌑 "
-		elseif brUsed == "dos" then
-			linebreakIcon = " 󰌑 "
-		end
-	end
-
-	return nonDefaultSetting .. wrongIndent .. linebreakIcon
+	return out
 end
 
 --------------------------------------------------------------------------------
@@ -124,9 +82,6 @@ local function currentFile()
 	local ext = fn.expand("%:e")
 	local ft = bo.filetype
 	local name = fn.expand("%:t")
-	if ft == "octo" and name:find("^%d$") then
-		name = "#" .. name
-	end
 
 	local deviconsInstalled, devicons = pcall(require, "nvim-web-devicons")
 	local ftOrExt = ext ~= "" and ext or ft
@@ -143,10 +98,6 @@ local function currentFile()
 		ftOrExt = "vim"
 	end
 	local icon = deviconsInstalled and devicons.get_icon(name, ftOrExt) or ""
-	-- add sourcegraph icon for clarity
-	if fn.expand("%"):find("^sg") then
-		icon = "󰓁 " .. icon
-	end
 
 	-- truncate
 	local nameNoExt = name:gsub("%.%w+$", "")
@@ -229,11 +180,6 @@ local lualineConfig = {
 	},
 	options = {
 		refresh = { statusline = 1000 },
-		ignore_focus = {
-			"DressingInput",
-			"DressingSelect",
-			"ccc-ui",
-		},
 		globalstatus = true,
 		component_separators = { left = "", right = "" },
 		section_separators = bottomSeparators,
@@ -244,6 +190,5 @@ local lualineConfig = {
 
 return {
 	"nvim-lualine/lualine.nvim",
-	dependencies = "nvim-tree/nvim-web-devicons",
 	opts = lualineConfig,
 }

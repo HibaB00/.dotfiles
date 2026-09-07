@@ -1,82 +1,62 @@
 return {
-	"nvim-treesitter/nvim-treesitter",
-	event = { "BufReadPre", "BufNewFile" },
-	build = ":TSUpdate",
-	dependencies = {
-		"windwp/nvim-ts-autotag",
-	},
-	config = function()
-		---@diagnostic disable-next-line: missing-fields
-		require("nvim-treesitter.configs").setup({
-			-- A list of parser names, or "all" (the five listed parsers should always be installed)
-			ensure_installed = {
-				-- Core
-				"c",
-				"lua",
-				"vim",
-				"vimdoc",
-				"query",
-				-- Web
-				"javascript",
-				"typescript",
-				"tsx",
-				"json",
-				"jsonc",
-				"html",
-				"css",
-				"scss",
-				-- Backend
-				"go",
-				"python",
-				"bash",
-				-- Config/Markup
-				"yaml",
-				"toml",
-				"markdown",
-				"markdown_inline",
-				-- Misc
-				"regex", -- silences noice's regex parser warning, used for cmdline highlighting
-				"svelte",
-				"vue",
-			},
-
-			-- Install parsers synchronously (only applied to `ensure_installed`)
-			sync_install = false,
-
-			-- Automatically install missing parsers when entering buffer
-			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-			auto_install = true,
-
-			highlight = {
-				enable = true,
-
-				-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-				-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-				-- Using this option may slow down your editor, and you may see some duplicate highlights.
-				-- Instead of true it can also be a list of languages
-				additional_vim_regex_highlighting = false,
-			},
-
-			-- Incremental selection with treesitter
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<C-space>",
-					node_incremental = "<C-space>",
-					scope_incremental = false,
-					node_decremental = "<bs>",
+	{
+		"nvim-treesitter/nvim-treesitter",
+		branch = "master", -- frozen upstream; `main` needs the tree-sitter CLI and a rewrite of this file
+		event = { "BufReadPre", "BufNewFile" },
+		build = ":TSUpdate",
+		config = function()
+			---@diagnostic disable-next-line: missing-fields
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = {
+					-- Core
+					"c",
+					"lua",
+					"vim",
+					"vimdoc",
+					"query",
+					-- Web
+					"javascript",
+					"typescript",
+					"tsx",
+					"json",
+					"jsonc",
+					"html",
+					"css",
+					"scss",
+					-- Backend
+					"go",
+					"python",
+					"bash",
+					-- Config/Markup
+					"yaml",
+					"toml",
+					"markdown",
+					"markdown_inline",
+					-- Misc
+					"regex", -- silences noice's regex parser warning, used for cmdline highlighting
+					"svelte",
+					"vue",
 				},
-			},
-
-			-- Better indentation
-			indent = {
-				enable = true,
-			},
-
-			-- Auto-close and rename HTML tags
-			autotag = {
-				enable = true,
-			},
-		})
-	end,
+				sync_install = false,
+				auto_install = true,
+				highlight = {
+					enable = true,
+					additional_vim_regex_highlighting = false,
+				},
+				incremental_selection = {
+					enable = true,
+					keymaps = {
+						init_selection = "<C-space>",
+						node_incremental = "<C-space>",
+						scope_incremental = false,
+						node_decremental = "<bs>",
+					},
+				},
+				indent = {
+					enable = true,
+				},
+			})
+		end,
+	},
+	{ "windwp/nvim-ts-autotag", event = { "BufReadPre", "BufNewFile" }, opts = {} },
 }
