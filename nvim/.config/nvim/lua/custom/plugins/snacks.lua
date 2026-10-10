@@ -80,6 +80,8 @@ return {
 		terminal = {},
 		-- Input (better vim.ui.input)
 		input = {},
+		-- Explorer (left sidebar file tree)
+		explorer = { enabled = true },
 	},
 	keys = {
 		-- Picker keymaps (replacing Telescope)
@@ -91,6 +93,8 @@ return {
 		{ "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
 		{ "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent Files" },
 		{ "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
+		-- Explorer
+		{ "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
 		-- Terminal
 		{ "<leader>tt", function() Snacks.terminal() end, desc = "Toggle Terminal", mode = { "n", "t" } },
 	},
