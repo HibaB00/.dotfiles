@@ -43,3 +43,26 @@ vim.api.nvim_create_autocmd("TermOpen", {
 		vim.opt.relativenumber = false
 	end,
 })
+
+-- Fire-and-forget Claude tasks: local background (`--bg`) or cloud (`--cloud`)
+local function claude_task(flag)
+	local file = vim.fn.expand("%:.")
+	vim.ui.input({ prompt = "Claude " .. flag .. ": ", default = file ~= "" and "@" .. file .. " " or "" }, function(task)
+		if not task or task == "" then
+			return
+		end
+		vim.system({ "claude", flag, task }, { text = true }, function(res)
+			local out = vim.trim(res.code == 0 and res.stdout or res.stderr)
+			vim.schedule(function()
+				vim.notify(out, res.code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR, { title = "claude " .. flag })
+			end)
+		end)
+	end)
+end
+vim.keymap.set("n", "<leader>ab", function() claude_task("--bg") end, { desc = "Claude: background task" })
+vim.keymap.set("n", "<leader>ac", function() claude_task("--cloud") end, { desc = "Claude: cloud task" })
+vim.keymap.set("n", "<leader>aA", function()
+	Snacks.terminal.toggle("claude agents", {
+		win = { position = "float", width = 0.9, height = 0.9, border = "rounded", title = " Claude agents ", title_pos = "center" },
+	})
+end, { desc = "Claude: agent view" })

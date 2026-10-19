@@ -108,3 +108,4 @@ cask "font-sketchybar-app-font"
 # brew "httpie"       # HTTP client
 # brew "jq"           # JSON processor
 # brew "gh"           # GitHub CLI
+brew "imagemagick"
