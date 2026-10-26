@@ -51,6 +51,12 @@ local function claude_task(flag)
 		if not task or task == "" then
 			return
 		end
+		-- --cloud only creates a session from a real terminal (no TTY = "send to existing session")
+		if flag == "--cloud" then
+			return Snacks.terminal.open({ "claude", flag, vim.trim(task) }, {
+				win = { position = "float", width = 0.9, height = 0.9, border = "rounded", title = " Claude cloud ", title_pos = "center" },
+			})
+		end
 		vim.system({ "claude", flag, task }, { text = true }, function(res)
 			local out = vim.trim(res.code == 0 and res.stdout or res.stderr)
 			vim.schedule(function()

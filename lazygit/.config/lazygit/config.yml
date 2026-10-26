@@ -26,8 +26,8 @@ gui:
       - "#D8DCE8"
     searchingActiveBorderColor:
       - "#7DCFFF"
-  authorColors:
-    "*": "#7AA2F7"
-  branchColors:
-    main: "#BB9AF7"
-    master: "#BB9AF7"
+    authorColors:
+      "*": "#7AA2F7"
+    branchColorPatterns:
+      ^main(/|$): "#BB9AF7"
+      ^master(/|$): "#BB9AF7"
