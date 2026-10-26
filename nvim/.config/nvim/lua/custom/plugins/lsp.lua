@@ -94,15 +94,7 @@ return {
 
 		vim.lsp.config("emmet_ls", {
 			filetypes = {
-				"html", "typescriptreact", "javascriptreact",
-				"css", "sass", "scss", "less", "svelte",
-			},
-		})
-
-		vim.lsp.config("biome", {
-			filetypes = {
-				"html", "css", "javascript", "typescript",
-				"svelte", "vue", "astro", "markdown", "json",
+				"html", "css", "sass", "scss", "less", "svelte",
 			},
 		})
 

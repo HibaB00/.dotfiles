@@ -16,6 +16,7 @@ return {
 		})
 
 		require("mason-lspconfig").setup({
+			automatic_enable = false, -- lsp.lua enables servers explicitly; otherwise stylua etc. start as LSPs too
 			ensure_installed = {
 				"ts_ls",
 				"html",

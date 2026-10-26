@@ -1,17 +1,13 @@
 # ============================================
-# Powerlevel10k Instant Prompt
-# ============================================
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# ============================================
 # Oh-My-Zsh Configuration
 # ============================================
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME="robbyrussell"
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
+
+# Secrets (tokens, keys) live here, never in this repo.
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 # ============================================
 # Aliases
@@ -31,11 +27,20 @@ zj() {
 export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
 
 # ============================================
+# Planned Codebase
+# ============================================
+PLANNED_REPO="$HOME/planned/entr-clients-cloudfunctions/"
+
+# Auto-pull on terminal open, in the background so the prompt doesn't wait on the network.
+if [ -d "$PLANNED_REPO" ]; then
+  (git -C "$PLANNED_REPO" pull --quiet &>/dev/null &)
+fi
+
+alias update-code="git -C $PLANNED_REPO pull"
+
+# ============================================
 # PATH Configuration
 # ============================================
-# Python user binaries
-export PATH="$HOME/Library/Python/3.9/bin:$PATH"
-
 # Go binaries
 if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
     export PATH="$PATH:$HOME/go/bin"
@@ -44,45 +49,43 @@ fi
 # Bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Doom Emacs
+export PATH="$HOME/.config/emacs/bin:$PATH"
+
+# Local binaries (includes cua-driver-rs)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Google Cloud SDK
+if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
 
 # ============================================
-# Runtime Managers
+# Node / Dev Environment
 # ============================================
+export DOTENV_ENV=development
 
-# NVM (Node Version Manager)
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# No global NODE_OPTIONS heap bump: it let every node process (tsserver, dev servers, Claude's LSPs)
+# grow to 8GB each. Use it only for a command that actually OOMs, e.g.  bigheap pnpm build
+bigheap() { NODE_OPTIONS="--max-old-space-size=8192" "$@"; }
 
-# Auto-load .nvmrc on directory change
-autoload -U add-zsh-hook
+# Increase file watcher limit + force polling mode for Next.js dev servers. On this monorepo
+# Turbopack's Watchpack hits the macOS fs.watch limit during startup even with ulimit raised,
+# producing EMFILE floods and routes failing to register. Polling eliminates the fd pressure
+# (small CPU trade) and keeps dev reliable.
+ulimit -n 65536
+export WATCHPACK_POLLING=true
+export CHOKIDAR_USEPOLLING=true
 
-load-nvmrc() {
-  local nvmrc_path
-  nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version
-    nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
-      nvm use
-    fi
-  elif [ -n "$(PWD=$OLDPWD nvm_find_nvmrc)" ] && [ "$(nvm version)" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
-# Bun completions
-[ -s "/home/hbayazid/.bun/_bun" ] && source "/home/hbayazid/.bun/_bun"
-
-# ============================================
-# Powerlevel10k Configuration
-# ============================================
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# fnm goes last so the Node it picks (.nvmrc / engines, default 24) wins over anything prepended
+# above — ~/.local/bin carries a hermes-installed Node 26 that otherwise shadows it.
+# Replaces nvm, which cost ~0.5s per shell.
+eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --resolve-engines --shell zsh)"

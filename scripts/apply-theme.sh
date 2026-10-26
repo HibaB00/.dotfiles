@@ -37,6 +37,9 @@ return {
   variable        = "$THEME_VARIABLE",
   number          = "$THEME_NUMBER",
   red             = "$THEME_RED",
+  green           = "$THEME_GREEN",
+  yellow          = "$THEME_YELLOW",
+  orange          = "$THEME_ORANGE",
 }
 EOF
 
@@ -74,9 +77,9 @@ gui:
       - "$THEME_CYAN"
   authorColors:
     "*": "$THEME_BLUE"
-  branchColors:
-    main: "$THEME_PURPLE"
-    master: "$THEME_PURPLE"
+  branchColorPatterns:
+    ^main(/|\$): "$THEME_PURPLE"
+    ^master(/|\$): "$THEME_PURPLE"
 EOF
 
 # ---------------------------------------------------------------------------
@@ -95,16 +98,17 @@ cursor_text_color       $THEME_BG
 
 url_color               $THEME_CYAN
 
-active_tab_foreground   $THEME_BG
-active_tab_background   $THEME_FG
+active_tab_foreground   $THEME_CYAN
+active_tab_background   $THEME_BG_SELECT
 inactive_tab_foreground $THEME_COMMENT
 inactive_tab_background $THEME_BG_FLOAT
+tab_bar_background      $THEME_BG
 
 # Normal colors (0-7)
 color0                  $THEME_BG
 color1                  $THEME_RED
-color2                  $THEME_TEAL
-color3                  $THEME_PURPLE
+color2                  $THEME_GREEN
+color3                  $THEME_YELLOW
 color4                  $THEME_BLUE
 color5                  $THEME_MAGENTA
 color6                  $THEME_CYAN
@@ -113,8 +117,8 @@ color7                  $THEME_FG
 # Bright colors (8-15)
 color8                  $THEME_COMMENT
 color9                  $THEME_RED
-color10                 $THEME_TEAL
-color11                 $THEME_VARIABLE
+color10                 $THEME_GREEN
+color11                 $THEME_YELLOW
 color12                 $THEME_BLUE
 color13                 $THEME_MAGENTA
 color14                 $THEME_CYAN
@@ -133,11 +137,11 @@ themes {
         bg "$THEME_BG_FLOAT"
         fg "$THEME_FG"
         red "$THEME_RED"
-        green "$THEME_TEAL"
+        green "$THEME_GREEN"
         blue "$THEME_BLUE"
-        yellow "$THEME_PURPLE"
+        yellow "$THEME_YELLOW"
         magenta "$THEME_MAGENTA"
-        orange "$THEME_VARIABLE"
+        orange "$THEME_ORANGE"
         cyan "$THEME_CYAN"
         black "$THEME_BG"
         white "$THEME_FG"

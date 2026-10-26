@@ -26,8 +26,14 @@ THEME_VARIABLE="#E0CCFF"    # variables, parameters
 THEME_NUMBER="#A9C5FF"      # literals
 THEME_RED="#F38BA8"         # errors, deletions
 
+# --- Semantic (non-syntax) --------------------------------------------------
+THEME_GREEN="#A6E3A1"       # success, additions
+THEME_YELLOW="#F9E2AF"      # warnings
+THEME_ORANGE="#FAB387"      # rare accents
+
 # Export so child processes (envsubst, etc.) can see them.
 export THEME_BG THEME_BG_DARK THEME_BG_FLOAT THEME_BG_HIGHLIGHT THEME_BG_SELECT
 export THEME_FG THEME_FG_DARK THEME_COMMENT THEME_GUTTER
 export THEME_BLUE THEME_CYAN THEME_TEAL THEME_MAGENTA THEME_PURPLE
 export THEME_STRING THEME_VARIABLE THEME_NUMBER THEME_RED
+export THEME_GREEN THEME_YELLOW THEME_ORANGE

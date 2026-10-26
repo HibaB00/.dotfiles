@@ -109,3 +109,5 @@ cask "font-sketchybar-app-font"
 # brew "jq"           # JSON processor
 # brew "gh"           # GitHub CLI
 brew "imagemagick"
+brew "fnm"
+brew "tree-sitter-cli"   # needed by nvim-treesitter main to build parsers

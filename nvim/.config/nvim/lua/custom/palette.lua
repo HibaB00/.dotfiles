@@ -18,4 +18,7 @@ return {
   variable        = "#E0CCFF",
   number          = "#A9C5FF",
   red             = "#F38BA8",
+  green           = "#A6E3A1",
+  yellow          = "#F9E2AF",
+  orange          = "#FAB387",
 }

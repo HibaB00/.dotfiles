@@ -7,6 +7,7 @@ return {
 	config = function()
 		require("tokyonight").setup({
 			style = "night",
+			transparent = true, -- let kitty's background_opacity / blur show through
 			on_colors = function(colors)
 				colors.bg = p.bg
 				colors.bg_dark = p.bg_dark
@@ -42,12 +43,17 @@ return {
 				colors.orange = p.number
 				colors.red = p.red
 				colors.red1 = p.red
+
+				-- Semantic colors: tokyonight derives these before on_colors runs, so set them directly
+				colors.warning = p.yellow
+				colors.git.add = p.green
+				colors.git.change = p.blue
+				colors.git.delete = p.red
 			end,
 			on_highlights = function(hl)
-				hl.LineNr = { fg = p.gutter, bg = p.bg }
+				hl.LineNr = { fg = p.gutter }
 				hl.CursorLineNr = { fg = p.fg, bg = p.bg_float }
 				hl.CursorLine = { bg = p.bg_float }
-				hl.SignColumn = { bg = p.bg }
 				hl.NormalFloat = { bg = p.bg_float }
 				hl.FloatBorder = { bg = p.bg_float, fg = p.gutter }
 				hl.Pmenu = { bg = p.bg_float }
