@@ -22,6 +22,7 @@ brew "tree-sitter"
 brew "zsh"
 brew "fzf"
 brew "zellij"
+brew "herdr"          # Agent multiplexer
 
 # ============================================
 # CLI Utilities

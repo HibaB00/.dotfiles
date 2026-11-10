@@ -44,31 +44,9 @@ vim.api.nvim_create_autocmd("TermOpen", {
 	end,
 })
 
--- Fire-and-forget Claude tasks: local background (`--bg`) or cloud (`--cloud`)
-local function claude_task(flag)
-	local file = vim.fn.expand("%:.")
-	vim.ui.input({ prompt = "Claude " .. flag .. ": ", default = file ~= "" and "@" .. file .. " " or "" }, function(task)
-		if not task or task == "" then
-			return
-		end
-		-- --cloud only creates a session from a real terminal (no TTY = "send to existing session")
-		if flag == "--cloud" then
-			return Snacks.terminal.open({ "claude", flag, vim.trim(task) }, {
-				win = { position = "float", width = 0.9, height = 0.9, border = "rounded", title = " Claude cloud ", title_pos = "center" },
-			})
-		end
-		vim.system({ "claude", flag, task }, { text = true }, function(res)
-			local out = vim.trim(res.code == 0 and res.stdout or res.stderr)
-			vim.schedule(function()
-				vim.notify(out, res.code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR, { title = "claude " .. flag })
-			end)
-		end)
-	end)
-end
-vim.keymap.set("n", "<leader>ab", function() claude_task("--bg") end, { desc = "Claude: background task" })
-vim.keymap.set("n", "<leader>ac", function() claude_task("--cloud") end, { desc = "Claude: cloud task" })
-vim.keymap.set("n", "<leader>aA", function()
-	Snacks.terminal.toggle("claude agents", {
-		win = { position = "float", width = 0.9, height = 0.9, border = "rounded", title = " Claude agents ", title_pos = "center" },
+-- herdr attaches to its persistent session, so toggling the float never kills agents
+vim.keymap.set("n", "<leader>ah", function()
+	Snacks.terminal.toggle("herdr", {
+		win = { position = "float", width = 0.95, height = 0.95, border = "rounded", title = " herdr ", title_pos = "center" },
 	})
-end, { desc = "Claude: agent view" })
+end, { desc = "herdr: agent multiplexer" })

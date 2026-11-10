@@ -1,0 +1,39 @@
+onboarding = false
+
+[theme]
+name = "one-dark"
+auto_switch = false
+
+# prefix+a: pick an agent, open it in a new tab (same folder as the current pane).
+[[keys.command]]
+key = "prefix+a"
+type = "popup"
+description = "open agent (pick)"
+width = 44
+height = 13
+command = "$HOME/.config/herdr/pick-agent"
+
+# Plugins (herdr binds no plugin keys by default). See them with: herdr plugin list
+[[keys.command]]
+key = "prefix+space"
+type = "plugin_action"
+command = "herdr-bar.open"
+description = "jump to any tab / agent (fuzzy)"
+
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file the agent touched"
+
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = true

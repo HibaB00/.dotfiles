@@ -35,10 +35,10 @@ theme:
 	@./scripts/apply-theme.sh
 
 stow-all:
-	@stow zsh nvim kitty git sketchybar zellij lazygit
+	@stow zsh nvim kitty git sketchybar zellij lazygit herdr
 
 unstow-all:
-	@stow -D zsh nvim kitty git sketchybar zellij lazygit
+	@stow -D zsh nvim kitty git sketchybar zellij lazygit herdr
 
 clean: unstow-all
 	@echo "All configurations unstowed"

@@ -13,6 +13,8 @@ source $ZSH/oh-my-zsh.sh
 # Aliases
 # ============================================
 alias vim="nvim"
+alias nv="nvim"
+alias hd="herdr"
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
 
 # ============================================
