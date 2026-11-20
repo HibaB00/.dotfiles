@@ -34,6 +34,14 @@ width = "70%"
 height = "70%"
 command = "$HOME/.config/herdr/agent-wt status"
 
+[[keys.command]]
+key = "prefix+shift+k"
+type = "popup"
+description = "remove this feature: workspace, worktree, branch"
+width = 70
+height = 8
+command = "$HOME/.config/herdr/agent-wt done"
+
 # Plugins (herdr binds no plugin keys by default). See them with: herdr plugin list
 [[keys.command]]
 key = "prefix+space"

@@ -5,6 +5,7 @@
 #
 #   agent-wt new [branch] [task...]   create the worktree, start its dev server and an agent
 #   agent-wt status                   what this worktree's agent is doing (herdr popup)
+#   agent-wt done [--force]           remove this feature: workspace, worktree, branch, state
 #   agent-wt brief                    Claude SessionStart hook: tells the agent its URL and rules
 #   agent-wt verify                   Claude Stop hook: typecheck/lint/test must pass to finish
 #
@@ -180,9 +181,39 @@ cmd_status() {
 	} | less -R
 }
 
+cmd_done() {
+	local force="" wt main branch ws sd note="" ans
+	[[ ${1:-} == --force ]] && force=1
+	wt=$(top "${HERDR_ACTIVE_PANE_CWD:-$PWD}") || die "not inside a git repo"
+	main=$(git -C "$wt" worktree list --porcelain | sed -n '1s/^worktree //p')
+	[[ $wt != "$main" ]] || die "this is the main checkout, not a feature worktree"
+	branch=$(git -C "$wt" branch --show-current)
+	sd=$(state_dir "$wt")
+
+	if [[ -n $(git -C "$wt" status --porcelain) ]]; then
+		[[ -n $force ]] || die "$branch has uncommitted changes; commit them, or use: agent-wt done --force"
+		note+=$'\n  uncommitted changes will be LOST'
+	fi
+	if ! git -C "$main" branch --merged HEAD --format='%(refname:short)' | grep -qxF "$branch"; then
+		[[ -n $force ]] && note+=$'\n  unmerged commits on the branch will be LOST' ||
+			note+=$'\n  branch is kept: it has commits not merged into the main checkout'
+	fi
+	read -rp "Remove feature '$branch' ($wt)?$note"$'\n[y/N] ' ans
+	[[ $ans == [yY] ]] || exit 0
+
+	ws=$("$HERDR" workspace list | jq -r --arg wt "$wt" '.result.workspaces[] | select(.worktree.checkout_path == $wt) | .workspace_id' | head -1)
+	rm -rf "$sd"
+	# Detached, because removing the workspace kills the pane this is running in.
+	cd "$main"
+	nohup sh -c '
+		if [ -n "$3" ]; then "$0" worktree remove --workspace "$3" ${4:+--force}; else git worktree remove ${4:+--force} "$1"; fi &&
+			git branch "$5" "$2"
+	' "$HERDR" "$wt" "$branch" "$ws" "$force" "$([[ -n $force ]] && echo -D || echo -d)" >/dev/null 2>&1 &
+}
+
 cmd="${1:-}"
 shift || true
 case $cmd in
-new | status | brief | verify) "cmd_$cmd" "$@" ;;
-*) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
+new | status | brief | verify | done) "cmd_$cmd" "$@" ;;
+*) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' ;;
 esac

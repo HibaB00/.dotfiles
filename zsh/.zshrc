@@ -16,6 +16,7 @@ alias vim="nvim"
 alias nv="nvim"
 alias hd="herdr"
 alias feat="$HOME/.config/herdr/agent-wt new"   # feat <branch> [task...]: worktree + dev server + agent
+alias feat-done="$HOME/.config/herdr/agent-wt done" # remove the current feature worktree (--force if dirty/unmerged)
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
 
 # ============================================
