@@ -44,12 +44,22 @@ cmd_new() {
 	src="${HERDR_ACTIVE_PANE_CWD:-$PWD}"
 	repo=$(top "$src") || die "not inside a git repo: $src"
 	branch="${1:-}"
-	[[ -n $branch ]] || read -rp "branch: " branch
-	[[ -n $branch ]] || exit 0
 	shift || true
 	task="$*"
-	# In the popup there are no args, so ask; from the shell an omitted task just means "none".
-	[[ -n $task || -z ${HERDR_ACTIVE_PANE_CWD:-} ]] || read -rp "task (optional): " task
+	if [[ -z $branch && -n ${HERDR_ACTIVE_PANE_CWD:-} ]]; then
+		# The popup (no args): a small form. \001..\002 keep readline's width maths right.
+		local label=$'\001\e[1;38;2;217;119;87m\002' off=$'\001\e[0m\002'
+		printf '\e[2J\e[2;4H\e[1mNew feature\e[0m\e[3;4H\e[2mworktree + dev server + agent  ·  from %s\e[0m' "$(basename "$repo")"
+		printf '\e[6;4H\e[2mtask\e[0m\e[9;4H\e[2m⏎ next  ·  task is optional  ·  empty branch or ctrl-c cancels\e[0m\e[5;1H'
+		read -erp "   ${label}branch${off}  " branch
+		[[ -n $branch ]] || exit 0
+		read -erp "   ${label}task${off}    " task
+		printf '\e[9;1H\e[J   \e[2mcreating %s…\e[0m\n' "$branch"
+		# Errors would vanish with the popup, so hold it open until a key is pressed.
+		trap 's=$?; [[ $s == 0 ]] || read -rsn1 -p "   press any key" || true; exit $s' EXIT
+	fi
+	[[ -n $branch ]] || read -rp "branch: " branch
+	[[ -n $branch ]] || exit 0
 
 	out=$("$HERDR" worktree create --cwd "$repo" --branch "$branch" --label "$branch" --focus) || die "$out"
 	wt=$(jq -r '.result.worktree.path' <<<"$out")
