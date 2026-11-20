@@ -40,7 +40,7 @@ tree_hash() {
 }
 
 cmd_new() {
-	local src repo branch task out wt pane sd p port name devcmd
+	local src repo branch task out wt pane sd p port name devcmd="" hook
 	src="${HERDR_ACTIVE_PANE_CWD:-$PWD}"
 	repo=$(top "$src") || die "not inside a git repo: $src"
 	branch="${1:-}"
@@ -69,26 +69,37 @@ cmd_new() {
 	port=$((3100 + $(printf %s "$wt" | cksum | cut -d' ' -f1) % 900))
 	while nc -z localhost "$port" 2>/dev/null; do port=$((port + 1)); done
 
+	# A repo whose dev stack can't be detected gets a hook, agent-wt.d/<main checkout's name>,
+	# which sets $port and $devcmd itself.
+	hook="$(dirname "$0")/agent-wt.d/$(basename "$(dirname "$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)")")"
+	[[ ! -f $hook ]] || . "$hook"
+
 	sd=$(state_dir "$wt")
 	mkdir -p "$sd"
-	echo "$port" >"$sd/port"
 	tree_hash "$wt" >"$sd/verified" # nothing to verify until the agent changes something
 	rm -f "$sd/rounds"
 	printf '# %s\n\n## Goal\n%s\n\n## Done\n\n## Now\n\n## Needs you\n' "$branch" "${task:-(not set yet)}" >"$sd/STATUS.md"
 
 	p=$(pm "$wt")
-	if [[ -n $p ]]; then
+	if [[ -z $devcmd && -n $p ]]; then
 		devcmd="$p install"
-		if has_script "$wt" dev; then
-			# --port is understood by vite, next, astro and friends; PORT covers most of the rest.
-			if [[ $p == npm ]]; then
-				devcmd+=" && PORT=$port npm run dev -- --port $port"
-			else
-				devcmd+=" && PORT=$port $p run dev --port $port"
-			fi
+		if ! has_script "$wt" dev; then
+			port="" # nothing will listen, so don't advertise a URL nobody serves
+		# --port is understood by vite, next, astro and friends; PORT covers most of the rest.
+		elif [[ $p == npm ]]; then
+			devcmd+=" && PORT=$port npm run dev -- --port $port"
+		else
+			devcmd+=" && PORT=$port $p run dev --port $port"
 		fi
-		out=$("$HERDR" pane split "$pane" --direction down --ratio 0.75 --cwd "$wt" --no-focus)
-		"$HERDR" pane run "$(jq -r '.result.pane.pane_id' <<<"$out")" "$devcmd" >/dev/null
+	fi
+	[[ -n $devcmd ]] || port=""
+	[[ -z $port ]] || echo "$port" >"$sd/port"
+	if [[ -n $devcmd ]]; then
+		# The servers get their own tab, so the agent keeps the whole first one.
+		out=$("$HERDR" tab create --workspace "${pane%%:*}" --cwd "$wt" --label servers --no-focus)
+		# Not `pane run`: once zsh is up it pastes bracketed, which zsh here rejects ("bad pattern: [200~…").
+		out=$(jq -r '.result.root_pane.pane_id' <<<"$out")
+		"$HERDR" pane send-text "$out" "$devcmd" >/dev/null && "$HERDR" pane send-keys "$out" enter >/dev/null
 	fi
 
 	# herdr agent names: [a-z][a-z0-9_-]{0,31}
@@ -105,7 +116,7 @@ cmd_new() {
 				"$HERDR" "${name:-agent}" "$task" >/dev/null 2>&1 &
 		fi
 	fi
-	echo "$branch → $wt (http://localhost:$port)"
+	echo "$branch → $wt${port:+ (http://localhost:$port)}"
 }
 
 # Shared guard for the hooks: resolve this session's worktree, exit quietly if it isn't ours.
@@ -117,12 +128,15 @@ ours() {
 
 cmd_brief() {
 	ours
+	local dev="No dev server was started for this worktree. If you need one, start it on a free port and
+  put its URL in STATUS.md. Ports already in use belong to other agents; never use them."
+	[[ ! -f $SD/port ]] || dev="This worktree's dev server: http://localhost:$(cat "$SD/port") (started in this workspace's 'servers' tab; the app may
+  be served under a base path, check the dev output). Other ports belong to other agents; never use them."
 	cat <<EOF
 You are working in a dedicated git worktree for one feature (branch: $(git -C "$WT" branch --show-current)).
 The user runs several agents in parallel and is not watching this one, so verify your own work:
 
-- This worktree's dev server: http://localhost:$(cat "$SD/port") (started in the pane below you; the app may
-  be served under a base path, check the dev output). Other ports belong to other agents; never use them.
+- $dev
 - When you try to finish, typecheck, lint and tests run automatically and you are sent back if they fail.
   Run them yourself first.
 - For anything visible in the UI: open the dev URL with the Playwright browser tools, exercise the change,
@@ -165,20 +179,58 @@ cmd_verify() {
 }
 
 cmd_status() {
-	local wt sd
+	local wt sd main base state url="" n w
 	wt=$(top "${HERDR_ACTIVE_PANE_CWD:-$PWD}") || die "not inside a git repo"
 	sd=$(state_dir "$wt")
+	main=$(git -C "$wt" worktree list --porcelain | sed -n '1s/^worktree //p')
+	base=$(git -C "$main" rev-parse HEAD)
+	state=$("$HERDR" agent list 2>/dev/null |
+		jq -r --arg wt "$wt" 'first(.result.agents[] | select(.cwd == $wt) | .agent_status // empty)' 2>/dev/null) || true
+	[[ ! -f $sd/port ]] || url="http://localhost:$(cat "$sd/port")"
+	n=$(git -C "$wt" status --porcelain | wc -l | tr -d ' ')
+	w=$({ stty size </dev/tty | cut -d' ' -f2; } 2>/dev/null) || true
 	{
+		# Title line: branch, what the agent is doing right now, where to look at the result.
+		printf '\n \e[1;36m%s\e[0m%s%s\n' "$(git -C "$wt" branch --show-current)" \
+			"${state:+   ● $state}" "${url:+   $'\e[4m'$url$'\e[0m'}"
 		if [[ -f $sd/STATUS.md ]]; then
-			cat "$sd/STATUS.md"
-			printf '\n## Dev server\nhttp://localhost:%s\n' "$(cat "$sd/port")"
+			# The agent's sections, most urgent first, whatever order, heading level and line breaks
+			# it wrote them with: each paragraph or bullet is rejoined, then wrapped to the popup.
+			awk -v w="$((${w:-80} - 2))" '
+				function flush() { if (cur != "") { item[k, ++cnt[k]] = cur; cur = "" } }
+				/^#+ / { flush(); sub(/^#+ +/, ""); k = tolower($0); if (!(k in cnt)) { order[++n] = k; cnt[k] = 0 }; next }
+				k == "" { next }
+				/^[ \t]*$/ { flush(); next }
+				/^[-*] / { flush(); cur = $0; next }
+				{ sub(/^[ \t]+/, ""); cur = (cur == "" ? $0 : cur " " $0) }
+				function emit(k,  i, j, m, words, line, pad) {
+					if (k in shown || !cnt[k]) return
+					shown[k]
+					printf "\n \033[1;%sm%s\033[0m\n", (k == "needs you" ? 33 : 34), toupper(k)
+					for (i = 1; i <= cnt[k]; i++) {
+						pad = (item[k, i] ~ /^[-*] / ? "     " : "   ") # wrapped bullet lines hang under their text
+						m = split(item[k, i], words, " ")
+						line = "   " words[1]
+						for (j = 2; j <= m; j++)
+							if (length(line) + 1 + length(words[j]) > w) { print line; line = pad words[j] }
+							else line = line " " words[j]
+						print line
+					}
+				}
+				END {
+					flush(); emit("needs you"); emit("now"); emit("done"); emit("goal")
+					for (i = 1; i <= n; i++) emit(order[i])
+				}' "$sd/STATUS.md"
 		else
-			echo "No agent-wt status for $wt (not created with agent-wt new)."
+			printf '\n   Not an agent-wt feature, so there is no agent status here.\n'
 		fi
-		printf '\n## Git\n'
-		git -C "$wt" status -sb | head -15
-		git -C "$wt" log --oneline -5
-	} | less -R
+		printf '\n \e[1;34mCHANGES\e[0m\n   %s uncommitted, %s committed on this branch\n' \
+			"$n file$([[ $n == 1 ]] || echo s)" "$(git -C "$wt" rev-list --count "$base..HEAD")"
+		# Where the uncommitted work is, by area; the files themselves are a prefix+f away.
+		git -C "$wt" status --porcelain | cut -c4- | cut -d/ -f1-2 | sort | uniq -c | sort -rn |
+			awk '{ printf "%s%s (%s)", (NR > 1 ? " · " : "   "), $2, $1 } END { if (NR) print "" }'
+		git -C "$wt" log --oneline "$base..HEAD" | sed -n '1,5s/^/   /p'
+	} | less -Rc~
 }
 
 cmd_done() {
@@ -206,6 +258,11 @@ cmd_done() {
 	# Detached, because removing the workspace kills the pane this is running in.
 	cd "$main"
 	nohup sh -c '
+		# Dev servers outlive their pane (pnpm does not forward SIGHUP, zellij keeps its session),
+		# so stop whatever still runs from inside the worktree before it is removed.
+		lsof -a -d cwd -Fpn 2>/dev/null |
+			awk -v wt="$1" "/^p/ {pid = substr(\$0, 2)} /^n/ {d = substr(\$0, 2); if (d == wt || index(d, wt \"/\") == 1) print pid}" |
+			xargs kill 2>/dev/null
 		if [ -n "$3" ]; then "$0" worktree remove --workspace "$3" ${4:+--force}; else git worktree remove ${4:+--force} "$1"; fi &&
 			git branch "$5" "$2"
 	' "$HERDR" "$wt" "$branch" "$ws" "$force" "$([[ -n $force ]] && echo -D || echo -d)" >/dev/null 2>&1 &
