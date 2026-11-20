@@ -1,4 +1,4 @@
-.PHONY: help install update health brew bootstrap clean stow-all unstow-all theme
+.PHONY: help install update health brew bootstrap clean stow-all unstow-all theme herdr
 
 # Default target
 help:
@@ -13,6 +13,7 @@ help:
 	@echo "  stow-all   - Stow all configurations"
 	@echo "  unstow-all - Unstow all configurations"
 	@echo "  theme      - Render theme/colors.sh into all tool configs"
+	@echo "  herdr      - Link herdr config, install its plugins, font and agent integrations"
 	@echo "  clean      - Remove all symlinks"
 	@echo "  help       - Show this help message"
 
@@ -33,6 +34,9 @@ brew:
 
 theme:
 	@./scripts/apply-theme.sh
+
+herdr:
+	@./scripts/setup-herdr.sh
 
 stow-all:
 	@stow zsh nvim kitty git sketchybar zellij lazygit herdr

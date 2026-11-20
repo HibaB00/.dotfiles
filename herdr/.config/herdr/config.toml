@@ -4,6 +4,10 @@ onboarding = false
 name = "one-dark"
 auto_switch = false
 
+# The nvim sidebar below takes prefix+e, so move its default owner instead of losing it.
+[keys]
+edit_scrollback = "prefix+shift+e"
+
 # prefix+a: pick an agent, open it in a new tab (same folder as the current pane).
 [[keys.command]]
 key = "prefix+a"
@@ -12,6 +16,23 @@ description = "open agent (pick)"
 width = 44
 height = 13
 command = "$HOME/.config/herdr/pick-agent"
+
+# Parallel feature work (see ./agent-wt): a worktree + dev server + self-verifying agent per feature.
+[[keys.command]]
+key = "prefix+shift+a"
+type = "popup"
+description = "new feature: worktree + dev server + agent"
+width = 60
+height = 6
+command = "$HOME/.config/herdr/agent-wt new"
+
+[[keys.command]]
+key = "prefix+i"
+type = "popup"
+description = "catch up: what this agent is doing"
+width = "70%"
+height = "70%"
+command = "$HOME/.config/herdr/agent-wt status"
 
 # Plugins (herdr binds no plugin keys by default). See them with: herdr plugin list
 [[keys.command]]

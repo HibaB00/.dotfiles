@@ -15,6 +15,7 @@ source $ZSH/oh-my-zsh.sh
 alias vim="nvim"
 alias nv="nvim"
 alias hd="herdr"
+alias feat="$HOME/.config/herdr/agent-wt new"   # feat <branch> [task...]: worktree + dev server + agent
 alias fuzzy='fzf --preview "cat {}" | xargs -r nvim'
 
 # ============================================

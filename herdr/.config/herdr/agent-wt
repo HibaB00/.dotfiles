@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+# agent-wt: one feature = one git worktree + herdr workspace + agent + dev server.
+# Project-agnostic: everything is detected (lockfile, package.json scripts, gitignored files)
+# and all state lives in ~/.local/state/agent-wt, so nothing is ever written into the repo.
+#
+#   agent-wt new [branch] [task...]   create the worktree, start its dev server and an agent
+#   agent-wt status                   what this worktree's agent is doing (herdr popup)
+#   agent-wt brief                    Claude SessionStart hook: tells the agent its URL and rules
+#   agent-wt verify                   Claude Stop hook: typecheck/lint/test must pass to finish
+#
+# brief/verify do nothing outside worktrees made by `new`, so they are safe as global hooks.
+
+set -euo pipefail
+HERDR="${HERDR_BIN_PATH:-herdr}"
+STATE_ROOT="${XDG_STATE_HOME:-$HOME/.local/state}/agent-wt"
+MAX_ROUNDS=3 # failed verify rounds before the agent is allowed to stop and hand over to you
+
+die() { echo "agent-wt: $*" >&2; exit 1; }
+top() { git -C "$1" rev-parse --show-toplevel 2>/dev/null; }
+state_dir() { echo "$STATE_ROOT/$(basename "$1")-$(printf %s "$1" | cksum | cut -d' ' -f1)"; }
+has_script() { [[ -f $1/package.json ]] && jq -e --arg s "$2" '.scripts[$s]' "$1/package.json" >/dev/null 2>&1; }
+
+pm() {
+	if [[ -f $1/bun.lock || -f $1/bun.lockb ]]; then echo bun
+	elif [[ -f $1/pnpm-lock.yaml ]]; then echo pnpm
+	elif [[ -f $1/yarn.lock ]]; then echo yarn
+	elif [[ -f $1/package.json ]]; then echo npm
+	fi
+}
+
+# Fingerprint of everything the agent could have changed: commits, tracked edits, new files.
+tree_hash() {
+	(
+		cd "$1"
+		git rev-parse HEAD
+		git diff HEAD
+		git ls-files -o --exclude-standard -z | xargs -0 cksum 2>/dev/null
+	) | cksum
+}
+
+cmd_new() {
+	local src repo branch task out wt pane sd p port name devcmd
+	src="${HERDR_ACTIVE_PANE_CWD:-$PWD}"
+	repo=$(top "$src") || die "not inside a git repo: $src"
+	branch="${1:-}"
+	[[ -n $branch ]] || read -rp "branch: " branch
+	[[ -n $branch ]] || exit 0
+	shift || true
+	task="$*"
+	# In the popup there are no args, so ask; from the shell an omitted task just means "none".
+	[[ -n $task || -z ${HERDR_ACTIVE_PANE_CWD:-} ]] || read -rp "task (optional): " task
+
+	out=$("$HERDR" worktree create --cwd "$repo" --branch "$branch" --label "$branch" --focus) || die "$out"
+	wt=$(jq -r '.result.worktree.path' <<<"$out")
+	pane=$(jq -r '.result.root_pane.pane_id' <<<"$out")
+	[[ -d $wt ]] || die "herdr did not return a worktree: $out"
+
+	# A fresh worktree has only tracked files. Bring over gitignored *files* (.env, generated
+	# data); ignored *directories* (node_modules, dist, .next) are rebuilt, not copied.
+	git -C "$repo" ls-files --others --ignored --exclude-standard --directory -z |
+		while IFS= read -r -d '' f; do
+			[[ $f == */ || $f == *.log || $f == *.DS_Store ]] && continue
+			mkdir -p "$wt/$(dirname "$f")"
+			cp -n "$repo/$f" "$wt/$f" || true
+		done
+
+	# Stable port per worktree, bumped if something already listens there.
+	port=$((3100 + $(printf %s "$wt" | cksum | cut -d' ' -f1) % 900))
+	while nc -z localhost "$port" 2>/dev/null; do port=$((port + 1)); done
+
+	sd=$(state_dir "$wt")
+	mkdir -p "$sd"
+	echo "$port" >"$sd/port"
+	tree_hash "$wt" >"$sd/verified" # nothing to verify until the agent changes something
+	rm -f "$sd/rounds"
+	printf '# %s\n\n## Goal\n%s\n\n## Done\n\n## Now\n\n## Needs you\n' "$branch" "${task:-(not set yet)}" >"$sd/STATUS.md"
+
+	p=$(pm "$wt")
+	if [[ -n $p ]]; then
+		devcmd="$p install"
+		if has_script "$wt" dev; then
+			# --port is understood by vite, next, astro and friends; PORT covers most of the rest.
+			if [[ $p == npm ]]; then
+				devcmd+=" && PORT=$port npm run dev -- --port $port"
+			else
+				devcmd+=" && PORT=$port $p run dev --port $port"
+			fi
+		fi
+		out=$("$HERDR" pane split "$pane" --direction down --ratio 0.75 --cwd "$wt" --no-focus)
+		"$HERDR" pane run "$(jq -r '.result.pane.pane_id' <<<"$out")" "$devcmd" >/dev/null
+	fi
+
+	# herdr agent names: [a-z][a-z0-9_-]{0,31}
+	name=$(printf %s "$branch" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_-' '-' | sed 's/^[^a-z]*//' | cut -c1-32)
+	if [[ ${AGENT_WT_KIND:-claude} != none ]]; then
+		if "$HERDR" agent start "${name:-agent}" --kind "${AGENT_WT_KIND:-claude}" --pane "$pane" >/dev/null 2>&1; then
+			[[ -z $task ]] || "$HERDR" agent prompt "${name:-agent}" "$task" >/dev/null 2>&1 ||
+				echo "could not send the task; it is saved in STATUS.md"
+		else
+			# Usually Claude's one-time "trust this folder?" prompt, which is yours to answer.
+			# The task is delivered once the agent is past it.
+			echo "agent is waiting on a prompt (trust this folder?); answer it and the task will be sent"
+			[[ -z $task ]] || nohup sh -c '"$0" agent wait "$1" --until idle --timeout 300000 && "$0" agent prompt "$1" "$2"' \
+				"$HERDR" "${name:-agent}" "$task" >/dev/null 2>&1 &
+		fi
+	fi
+	echo "$branch → $wt (http://localhost:$port)"
+}
+
+# Shared guard for the hooks: resolve this session's worktree, exit quietly if it isn't ours.
+ours() {
+	WT=$(top "$PWD") || exit 0
+	SD=$(state_dir "$WT")
+	[[ -d $SD ]] || exit 0
+}
+
+cmd_brief() {
+	ours
+	cat <<EOF
+You are working in a dedicated git worktree for one feature (branch: $(git -C "$WT" branch --show-current)).
+The user runs several agents in parallel and is not watching this one, so verify your own work:
+
+- This worktree's dev server: http://localhost:$(cat "$SD/port") (started in the pane below you; the app may
+  be served under a base path, check the dev output). Other ports belong to other agents; never use them.
+- When you try to finish, typecheck, lint and tests run automatically and you are sent back if they fail.
+  Run them yourself first.
+- For anything visible in the UI: open the dev URL with the Playwright browser tools, exercise the change,
+  read the console for errors, and screenshot at 1440px and 390px wide. Look at the screenshots, fix what is
+  wrong, and repeat until it is right.
+- Keep $SD/STATUS.md current (sections: Goal, Done, Now, Needs you; under 20 lines). The user reads it to
+  catch up when switching to you. Update it before you stop or ask a question, and put what you verified
+  and what they should look at under "Needs you".
+- Stay inside this worktree. Do not push, merge, or touch other worktrees.
+EOF
+}
+
+cmd_verify() {
+	ours
+	local hash p s log rounds
+	hash=$(tree_hash "$WT")
+	[[ $hash == "$(cat "$SD/verified" 2>/dev/null)" ]] && exit 0 # unchanged since the last pass
+	p=$(pm "$WT")
+	[[ -n $p ]] || exit 0
+	# A missing tool is your environment's problem, not something the agent can fix.
+	command -v "$p" >/dev/null || { jq -n --arg m "agent-wt: '$p' not on PATH, checks skipped" '{systemMessage: $m}'; exit 0; }
+	log="$SD/verify.log"
+	for s in typecheck lint test; do
+		has_script "$WT" "$s" || continue
+		if ! (cd "$WT" && "$p" run "$s") >"$log" 2>&1; then
+			rounds=$(($(cat "$SD/rounds" 2>/dev/null || echo 0) + 1))
+			echo "$rounds" >"$SD/rounds"
+			if ((rounds > MAX_ROUNDS)); then
+				rm -f "$SD/rounds"
+				jq -n --arg m "agent-wt: '$p run $s' still failing after $MAX_ROUNDS fix attempts; see $log" '{systemMessage: $m}'
+				exit 0
+			fi
+			echo "'$p run $s' failed (attempt $rounds/$MAX_ROUNDS). Fix it before finishing:" >&2
+			tail -n 60 "$log" >&2
+			exit 2 # exit 2 from a Stop hook sends stderr back to the agent and keeps it working
+		fi
+	done
+	echo "$hash" >"$SD/verified"
+	rm -f "$SD/rounds"
+}
+
+cmd_status() {
+	local wt sd
+	wt=$(top "${HERDR_ACTIVE_PANE_CWD:-$PWD}") || die "not inside a git repo"
+	sd=$(state_dir "$wt")
+	{
+		if [[ -f $sd/STATUS.md ]]; then
+			cat "$sd/STATUS.md"
+			printf '\n## Dev server\nhttp://localhost:%s\n' "$(cat "$sd/port")"
+		else
+			echo "No agent-wt status for $wt (not created with agent-wt new)."
+		fi
+		printf '\n## Git\n'
+		git -C "$wt" status -sb | head -15
+		git -C "$wt" log --oneline -5
+	} | less -R
+}
+
+cmd="${1:-}"
+shift || true
+case $cmd in
+new | status | brief | verify) "cmd_$cmd" "$@" ;;
+*) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac
