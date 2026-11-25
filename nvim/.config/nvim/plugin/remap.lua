@@ -50,3 +50,12 @@ vim.keymap.set("n", "<leader>ah", function()
 		win = { position = "float", width = 0.95, height = 0.95, border = "rounded", title = " herdr ", title_pos = "center" },
 	})
 end, { desc = "herdr: agent multiplexer" })
+
+-- Save and run the current Lua file with its sibling input.txt (real lua, not nvim's LuaJIT).
+-- <leader>rr, not <leader>r: that prefix is shared with <leader>rn / <leader>rs in lsp.lua.
+vim.keymap.set("n", "<leader>rr", function()
+	vim.cmd("write")
+	local file = vim.fn.expand("%")
+	local input = vim.fn.expand("%:h") .. "/input.txt"
+	vim.cmd("botright split | terminal lua " .. file .. " " .. input)
+end, { desc = "Run Lua puzzle" })
